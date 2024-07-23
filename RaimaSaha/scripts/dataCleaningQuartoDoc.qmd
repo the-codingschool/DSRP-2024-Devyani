@@ -1,0 +1,28 @@
+Reading in the data
+
+```{r}
+getwd()
+
+filename <- "data/2018_Central_Park_Squirrel_Census_-_Squirrel_Data_20240721.csv"
+
+data <- read.csv(filename)
+
+head(data)
+```
+
+Some exploratory data analysis
+
+```{r}
+str(data)
+```
+
+At a glance: data inconsistencies
+
+-   FIX COLUMN NAMES
+    -   get rid of periods
+    -   latitude and longitudes are together in character form
+        -   separate into "latitude" and "longitude" columns
+-   lots of Booleans are represented as characters instead of Boolean
+-   fur color is either empty or inconsistent
+    -   i.e. "Gray" and "Gray+"
+-   dates are weird
