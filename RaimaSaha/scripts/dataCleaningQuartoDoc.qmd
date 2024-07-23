@@ -26,3 +26,8 @@ At a glance: data inconsistencies
 -   fur color is either empty or inconsistent
     -   i.e. "Gray" and "Gray+"
 -   dates are weird
+-   many columns are character datatypes when they should be numeric or Booleans
+
+```{r}
+summary(data)
+```
