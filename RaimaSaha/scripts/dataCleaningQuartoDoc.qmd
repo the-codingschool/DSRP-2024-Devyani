@@ -1,6 +1,29 @@
+# Data Cleaning
+
 Reading in the data
 
 ```{r}
+# Install necessary packages if not already installed
+if (!require("titanic")) install.packages("titanic")
+if (!require("dplyr")) install.packages("dplyr")
+if (!require("janitor")) install.packages("janitor")
+if (!require("ggplot2")) install.packages("ggplot2")
+if (!require("tidyr")) install.packages("tidyr")
+if (!require("sf")) install.packages("sf")
+if (!require("mapview")) install.packages("mapview")
+
+# Load necessary libraries
+library(titanic)
+library(dplyr)
+library(janitor)
+library(ggplot2)
+library(tidyr)
+library(sf)
+library(mapview)
+
+
+# Load required libraries
+install.packages("ggplot2")     # For plotting
 getwd()
 
 filename <- "data/2018_Central_Park_Squirrel_Census_-_Squirrel_Data_20240721.csv"
@@ -8,6 +31,7 @@ filename <- "data/2018_Central_Park_Squirrel_Census_-_Squirrel_Data_20240721.csv
 data <- read.csv(filename)  
 
 head(data)
+data
 ```
 
 Some exploratory data analysis
@@ -27,7 +51,148 @@ At a glance: data inconsistencies
     -   i.e. "Gray" and "Gray+"
 -   dates are weird
 -   many columns are character datatypes when they should be numeric or Booleans
+-   \*Something to consider
+    -   should I change latitude and longitude columns to numeric types?
+    -   above_ground_sighter: combination of numbers and booleans – how should I handle them
+
+Cleaning column names to snake case
 
 ```{r}
-summary(data)
+data_col_cleaned <- clean_names(data, case = "snake")
+data_col_cleaned
+```
+
+Removing column combination_of_primary_and_highlight_color
+
+```{r}
+no_combo_col_data_cleaned <- select(data_col_cleaned, !combination_of_primary_and_highlight_color)
+no_combo_col_data_cleaned
+```
+
+Fixing lat_long column by separating into a latitude and longitude column. Technically, x and y also are the latitude and longitude column, and it makes sense to just only have one copy of this specific data. I'm opting to keep the lat_long and separate it because it has more decimal points and is more precise than the x and y columns.
+
+```{r}
+# removing parenthesis from lat_long
+no_combo_col_data_cleaned$lat_long <- gsub("[()]","", as.character(no_combo_col_data_cleaned$lat_long))
+no_combo_col_data_cleaned
+
+# separating lat_long into three columns: POINT, latitude, and longitude
+sep_lat_long_cleaned <- separate(no_combo_col_data_cleaned, col = lat_long, into = c("POINT", "latitude", "longitude"), sep = " ")
+sep_lat_long_cleaned
+
+# removing x, y, and POINT columns
+no_point_data_cleaned <- select(sep_lat_long_cleaned, !c("x", "y", "POINT"))
+no_point_data_cleaned
+
+# arranging data to put latitude and longitude first
+arranged_data <- select(no_point_data_cleaned, latitude, longitude, everything())
+arranged_data
+
+dim(arranged_data)
+```
+
+Removing empty rows (didn't work so no_empty_data = arranged_data). Will be using arranged_data for next section to avoid any confusion.
+
+```{r}
+no_empty_data <- remove_empty(arranged_data, which = c("rows", "cols"))
+no_empty_data
+dim(no_empty_data) # dimensions don't change since no row or column is fully empty
+
+no_empty_data <- na.omit(arranged_data)
+no_empty_data
+dim(no_empty_data) # dimensions don't change since no row or column is fully empty
+```
+
+Inserting NA for empty and "?" values
+
+```{r}
+arranged_data[arranged_data == "" | arranged_data == " " | arranged_data == "?"] <- NA
+arranged_data
+```
+
+Removing NA values part 2 –\> ABORT, ONLY ONE ROW LEFT
+
+```{r}
+no_empty_data <- na.omit(arranged_data)
+no_empty_data
+dim(no_empty_data)
+```
+
+Finding duplicates and removing them.
+
+```{r}
+duplicates <- arranged_data |>
+  get_dupes()
+duplicates # no duplicates found
+```
+
+Convert latitude and longitude to numeric types.
+
+```{r}
+lat_long_num_data <- transform(arranged_data, latitude = as.numeric(latitude), longitude = as.numeric(longitude))
+lat_long_num_data
+```
+
+**COME BACK TO THIS**: Converting kuks:runs_from to logical vectors (Boolean). Will be using arranged_data from above for next section to avoid any confusion.
+
+```{r}
+bool_data_cleaned <- lat_long_num_data |>
+  mutate(kuks:runs_from) |>
+  as.logical()
+bool_data_cleaned
+```
+
+Putting result of final step of cleaning process (for now) in the variable cleaned_data.
+
+```{r}
+cleaned_data <- lat_long_num_data
+cleaned_data
+```
+
+# Exploratory Data Analysis
+
+## Early questions
+
+-   does age have any impact on how a squirrel acts (kuks, qaas, indifferent, etc.)?
+-   how does location influence the sounds or behavior of a squirrel?
+
+Looking at the structure of the data
+
+```{r}
+str(cleaned_data)
+```
+
+Looking at the summary of the data
+
+```{r}
+summary(cleaned_data)
+```
+
+Number adults vs juveniles plot
+
+```{r}
+age_column <- cleaned_data |>
+  select(age)
+
+age_column |>
+  count(age) |>
+  ggplot(aes(x = age, y = n, fill = age)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Number of Adults versus Juveniles",
+  x = "Age",
+  y = "Count",
+  fill = "Age")
+```
+
+I don't know what the pink (?) category. Take a look into the distribution of the data.
+
+```{r}
+table(cleaned_data$age) # distribution of adult and juvenile
+sum(is.na(cleaned_data$age)) # number of NA values
+```
+
+Creating plot mapping out latitudes and longitudes in mapview
+
+```{r}
+mapview(cleaned_data, xcol = "longitude", ycol = "latitude", crs = 4326, grid = FALSE)
 ```
