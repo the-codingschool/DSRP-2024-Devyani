@@ -11,6 +11,8 @@ if (!require("ggplot2")) install.packages("ggplot2")
 if (!require("tidyr")) install.packages("tidyr")
 if (!require("sf")) install.packages("sf")
 if (!require("mapview")) install.packages("mapview")
+if (!require("maps")) install.packages("maps")
+if (!require("OpenStreetMap")) install.packages("OpenStreetMap")
 
 # Load necessary libraries
 library(titanic)
@@ -20,7 +22,8 @@ library(ggplot2)
 library(tidyr)
 library(sf)
 library(mapview)
-
+library(maps)
+library(OpenStreetMap)
 
 # Load required libraries
 install.packages("ggplot2")     # For plotting
@@ -133,20 +136,77 @@ lat_long_num_data <- transform(arranged_data, latitude = as.numeric(latitude), l
 lat_long_num_data
 ```
 
-**COME BACK TO THIS**: Converting kuks:runs_from to logical vectors (Boolean). Will be using arranged_data from above for next section to avoid any confusion.
+Removing FALSE in above_ground_sighter_measurements and replacing with 0.
 
 ```{r}
-bool_data_cleaned <- lat_long_num_data |>
-  mutate(kuks:runs_from) |>
-  as.logical()
-bool_data_cleaned
+lat_long_num_data[lat_long_num_data == "FALSE"] <- "0"
+lat_long_num_data
 ```
 
-Putting result of final step of cleaning process (for now) in the variable cleaned_data.
+Converting **above_ground_sighter_measurement** column from character to numeric.
 
 ```{r}
-cleaned_data <- lat_long_num_data
-cleaned_data
+agsm_num <- transform(lat_long_num_data, above_ground_sighter_measurement = as.numeric(above_ground_sighter_measurement))
+agsm_num
+```
+
+Converting data column from int object to date object.
+
+```{r}
+date_data <- transform(lat_long_num_data, date = as.Date(as.character(date), format = "%m%d%Y"))
+date_data
+```
+
+Converting running:foraging and kuks:runs_from to logical vectors (Boolean).
+
+```{r}
+# bool_data_cleaned <- date_data |>
+#   select(kuks:runs_from) |>
+#   as.logical()
+# bool_data_cleaned
+
+# date_data[date_data == "true"] <- as.logical("T")
+# date_data[date_data == "false"] <- as.logical("F")
+# date_data
+
+# date_data[, c("running", "chasing", "climbing", "eating", "foraging")] <- as.logical(date_data[, c("running", "chasing", "climbing", "eating", "foraging")])
+# date_data
+
+# for (i in c("running", "chasing", "climbing", "eating", "foraging")) {
+#   date_data$i <- as.logical(date_data$i)
+# }
+# date_data
+
+date_data$running <- as.logical(date_data$running)
+date_data$chasing <- as.logical(date_data$chasing)
+date_data$climbing <- as.logical(date_data$climbing)
+date_data$eating <- as.logical(date_data$eating)
+date_data$foraging <- as.logical(date_data$foraging)
+
+date_data$kuks <- as.logical(date_data$kuks)
+date_data$quaas <- as.logical(date_data$quaas)
+date_data$moans <- as.logical(date_data$moans)
+date_data$tail_flags <- as.logical(date_data$tail_flags)
+date_data$tail_twitches <- as.logical(date_data$tail_twitches)
+date_data$approaches <- as.logical(date_data$approaches)
+date_data$indifferent <- as.logical(date_data$indifferent)
+date_data$runs_from <- as.logical(date_data$runs_from)
+
+date_data
+```
+
+Getting rid of random i column at the end of dataset.
+
+```{r}
+nec_data <- select(date_data, !i)
+nec_data
+```
+
+Putting result of final step of cleaning process (for now) in the variable clean_data.
+
+```{r}
+clean_data <- nec_data
+clean_data
 ```
 
 # Exploratory Data Analysis
@@ -159,20 +219,21 @@ cleaned_data
 Looking at the structure of the data
 
 ```{r}
-str(cleaned_data)
+str(clean_data)
 ```
 
 Looking at the summary of the data
 
 ```{r}
-summary(cleaned_data)
+summary(clean_data)
 ```
 
-Number adults vs juveniles plot
+Comparing number of adult squirrels to juvenile squirrels
 
 ```{r}
-age_column <- cleaned_data |>
-  select(age)
+age_column <- clean_data |>
+  select(age) |>
+  drop_na() # dropping NA values in the data set
 
 age_column |>
   count(age) |>
@@ -187,12 +248,96 @@ age_column |>
 I don't know what the pink (?) category. Take a look into the distribution of the data.
 
 ```{r}
-table(cleaned_data$age) # distribution of adult and juvenile
-sum(is.na(cleaned_data$age)) # number of NA values
+table(clean_data$age) # distribution of adult and juvenile
+sum(is.na(clean_data$age)) # number of NA values
 ```
 
-Creating plot mapping out latitudes and longitudes in mapview
+Creating plot to see trend between sighting above or below ground and date.
 
 ```{r}
-mapview(cleaned_data, xcol = "longitude", ycol = "latitude", crs = 4326, grid = FALSE)
+location_date_column <- clean_data |>
+  select(location, date) |>
+  drop_na() # dropping NA values in the data set
+
+ggplot(location_date_column, aes(x = location, fill = factor(date))) + geom_bar(position = "dodge") 
 ```
+
+We can see that squirrels are more likely to be found on the ground plane than above ground on any given day.
+
+Let's look at the location of a squirrel based on its fur color.
+
+```{r}
+location_fur_column <- clean_data |>
+  select(location, primary_fur_color) |>
+  drop_na() # dropping NA values in the data set
+
+ggplot(location_fur_column, aes(x = location, fill = primary_fur_color)) + geom_bar(position = "dodge") 
+```
+
+Not much can be discerned by the graph other than the trend discovered above, that squirrels tend to spotted more on the ground plane than above ground.
+
+Let's create a plot to see if a certain colored squirrel is to be spotted more on any given day.
+
+```{r}
+fur_date_column <- clean_data |>
+  select(primary_fur_color, date) |>
+  drop_na() # dropping NA values in the data set
+
+ggplot(fur_date_column, aes(x = primary_fur_color, fill = factor(date))) + geom_bar(position = "dodge") 
+```
+
+From this plot, we can see that squirrels with gray as their primary fur color are spotted more than squirrels with any other fur color. Maybe gray squirrels are the most common?
+
+I'm creating a plot to see how high each squirrel was spotted above ground based on primary fur color. Knowing that majority of the squirrels in the data set have gray fur color and they were spotted above ground the most, I wouldn't be surprised if the highest measurements belonged to them.
+
+```{r}
+fur_agm_column <- clean_data |>
+  select(primary_fur_color, above_ground_sighter_measurement) #|>
+  #drop_na() # dropping NA values in the data set
+
+ggplot(fur_agm_column, aes(x = primary_fur_color, y = above_ground_sighter_measurement)) + geom_bar(stat = "identity") 
+```
+
+My prediction was right.
+
+**IGNORE, COME BACK TO THIS:** Let's look at the relationship between primary fur colors and latitudinal and longitudinal locations.
+
+```{r}
+# lat_long <- clean_data |>
+#   select(latitude, longitude, primary_fur_color)
+# 
+# ggplot(data = lat_long, aes(map_id = city)) + geom_map(aes(fill = primary_fur_color, map = maps_data("city"))) 
+
+  
+
+upperLeft = c(40.75, -73.50)
+
+lowerRight = c(40.71, -73.43)
+
+base_map  = openmap(upperLeft, lowerRight, type="osm")
+
+plot(base_map)
+
+points <- st_as_sf(clean_data, coords = c("latitude", "longitude"), crs = 4326)
+
+plot(st_geometry(points), pch = 16, col = "navy", cex = 2, add = T)
+
+```
+
+Creating plot mapping out latitudes and longitudes in mapview. Shows distribution of squirrels without any context.
+
+```{r}
+mapview(clean_data, xcol = "longitude", ycol = "latitude", crs = 4326, grid = FALSE)
+
+
+```
+
+Created a pie chart of number of squirrels found running and not running
+
+```{r}
+pie(table(clean_data$running), main = "Running?",  labels = c("False", "True"), sep = "")
+
+table(clean_data$running)
+```
+
+Heat map between
