@@ -13,6 +13,11 @@ if (!require("sf")) install.packages("sf")
 if (!require("mapview")) install.packages("mapview")
 if (!require("maps")) install.packages("maps")
 if (!require("OpenStreetMap")) install.packages("OpenStreetMap")
+if (!require("caret")) install.packages("caret")
+if (!require("e1071")) install.packages("e1071")
+if (!require("plotly")) install.packages("plotly")
+if (!require("gridExtra")) install.packages("gridExtra")
+
 
 # Load necessary libraries
 library(titanic)
@@ -24,6 +29,10 @@ library(sf)
 library(mapview)
 library(maps)
 library(OpenStreetMap)
+library(caret)  # For cross-validation
+library(e1071)  # For logistic regression
+library(plotly)  # For 3D plots
+library(gridExtra)
 
 # Load required libraries
 install.packages("ggplot2")     # For plotting
@@ -205,7 +214,16 @@ nec_data
 Putting result of final step of cleaning process (for now) in the variable clean_data.
 
 ```{r}
-clean_data <- nec_data
+clean_data <- date_data
+clean_data
+```
+
+Creating a clean dataset with boolean columns as binary, 0 = False and 1 = True.
+
+```{r}
+clean_data[clean_data == FALSE] <- 0
+clean_data[clean_data == TRUE] <- 1
+
 clean_data
 ```
 
@@ -215,6 +233,8 @@ clean_data
 
 -   does age have any impact on how a squirrel acts (kuks, qaas, indifferent, etc.)?
 -   how does location influence the sounds or behavior of a squirrel?
+-   which factors (**location**, time of day, **primary fur color**) most impact a squirrel's interaction with humans?
+-   make plots- scatterplots
 
 Looking at the structure of the data
 
@@ -340,4 +360,176 @@ pie(table(clean_data$running), main = "Running?",  labels = c("False", "True"), 
 table(clean_data$running)
 ```
 
-Heat map between
+Time of day vs primary fur color
+
+```{r}
+ggplot(clean_data, aes(x = shift, fill = primary_fur_color)) + geom_bar(position = "dodge")
+```
+
+Location vs primary fur color
+
+```{r}
+spec_data <- clean_data |>
+  select(primary_fur_color, location) |>
+  drop_na()
+
+ggplot(spec_data, aes(x = primary_fur_color, y = location, color = primary_fur_color)) + geom_count() + labs(title = "Location vs. Primary Fur Color", x = "Primary Fur Color", y = "Location", size = "Count", color = "Primary Fur Color")
+```
+
+Kuks vs primary fur color
+
+```{r}
+spec_data <- clean_data |>
+  select(primary_fur_color, kuks) |>
+  drop_na()
+
+ggplot(spec_data, aes(x = primary_fur_color, y = kuks, color = primary_fur_color)) + geom_count() + labs(title = "Kuks vs. Primary Fur Color", x = "Primary Fur Color", y = "Kuks", size = "Count", color = "Primary Fur Color")
+```
+
+foraging vs primary fur color
+
+```{r}
+spec_data <- clean_data |>
+  select(primary_fur_color, foraging) |>
+  drop_na()
+
+ggplot(spec_data, aes(x = primary_fur_color, y = foraging, color = primary_fur_color)) + geom_count() + labs(title = "Foraging vs. Primary Fur Color", x = "Primary Fur Color", y = "Foraging", size = "Count", color = "Primary Fur Color")
+```
+
+Looking at the distributions of adults and juveniles by latitudinal and longitudinal coordinates.
+
+```{r}
+my_sf <- clean_data |>
+  st_as_sf(coords = c('longitude', 'latitude')) |>
+  st_set_crs(4326)
+
+ggplot() + geom_sf(data = my_sf, aes(color = age)) + theme(axis.text.x = element_text(angle = 90))
+```
+
+Looking at squirrel location in relation to hectare, and also to foraging
+
+```{r}
+my_sf <- clean_data |>
+  st_as_sf(coords = c('longitude', 'latitude')) |>
+  st_set_crs(4326)
+
+ggplot() + geom_sf(data = my_sf, aes(color = hectare, shape = foraging)) + theme(axis.text.x = element_text(angle = 90))
+```
+
+```{r}
+my_sf <- clean_data |>
+  st_as_sf(coords = c('longitude', 'latitude')) |>
+  st_set_crs(4326)
+
+ggplot() + geom_sf(data = my_sf, aes(color = primary_fur_color)) + theme(axis.text.x = element_text(angle = 90))  
+```
+
+```{r}
+my_sf <- clean_data |>
+  filter(!is.na("longitude") & !is.na("latitude")) |>
+  st_as_sf(coords = c('longitude', 'latitude')) |>
+  st_set_crs(4326)
+
+ggplot() + geom_sf(data = my_sf, aes(color = primary_fur_color, shape = age), size = 2) + theme(axis.text.x = element_text(angle = 90)) +  facet_wrap(~primary_fur_color) 
+
+ggplot() + geom_sf(data = my_sf, aes(color = primary_fur_color, shape = age), size = 2) + theme(axis.text.x = element_text(angle = 90))
+
+summary(clean_data)
+```
+
+Looking at the date of the observations made vs. location in the park, also looking at age.
+
+```{r}
+my_sf <- clean_data |>
+  st_as_sf(coords = c('longitude', 'latitude')) |>
+  st_set_crs(4326)
+
+ggplot() + geom_sf(data = my_sf, aes(color = date, shape = age)) + theme(axis.text.x = element_text(angle = 90))
+```
+
+```{r}
+# Standardize the data for running:foraging
+scaled_data <- scale(clean_data[, 21:28])
+
+# Perform PCA
+pca <- prcomp(scaled_data, center = TRUE, scale. = TRUE)
+
+# Get covariance matrix and eigenvalues
+cov_matrix <- cov(scaled_data)
+eigenvalues <- pca$sdev^2
+explained_variance_ratio <- eigenvalues / sum(eigenvalues)
+
+print("Covariance Matrix:")
+print(cov_matrix)
+print("\nEigenvalues:")
+print(eigenvalues)
+
+corrMatrix = np.corrcoef(x,y) #input values for each of the variables
+# Plot the data:
+plt.imshow(corrMatrix) 
+plt.xlabel(‘x’)
+plt.ylabel(‘y’)
+plt.colorbar()
+plt.show()
+```
+
+```{r}
+# Explained Variance Ratio
+total_explained_variances <- cumsum(explained_variance_ratio)
+
+print("Explained Variance Ratios:")
+print(explained_variance_ratio)
+
+for (i in 1:length(explained_variance_ratio)) {
+  cat('Total explained variance including', i, 'components:', total_explained_variances[i], '\n')
+  cat('We', ifelse(total_explained_variances[i] < 0.9, 'should use more components', 'do not need to use more components.'), '\n')
+}
+```
+
+```{r}
+scree_plot <- ggplot(data.frame(PC = 1:length(eigenvalues), Eigenvalue = eigenvalues), aes(x = PC, y = Eigenvalue)) +
+  geom_line() +
+  geom_point() +
+  xlab('Principal Component') +
+  ylab('Eigenvalue') +
+  ggtitle('Scree Plot') +
+  theme_minimal()
+
+print(scree_plot)
+```
+
+```{r}
+variance_df <- data.frame(PC = 1:length(explained_variance_ratio), Variance = explained_variance_ratio, Cumulative = total_explained_variances)
+variance_plot <- ggplot(variance_df, aes(x = PC)) +
+  geom_bar(aes(y = Variance), stat = 'identity', alpha = 0.5, fill = 'blue') +
+  geom_step(aes(y = Cumulative), color = 'red') +
+  xlab('Principal Components') +
+  ylab('Variance Explained') +
+  ggtitle('Explained Variance Ratio and Cumulative Explained Variance') +
+  theme_minimal()
+
+print(variance_plot)
+```
+
+```{r}
+print("Explained Variances:")
+print(eigenvalues)
+
+for (i in 1:length(eigenvalues)) {
+  ev <- eigenvalues[i]
+  cat('Component', i, ' has explained variance of:', ev, '\n')
+  cat('We will', ifelse(ev <= 1, 'not', ''), 'use this component.\n')
+}
+```
+
+```{r}
+# Visualize the top 2 components of the data
+pc_1 <- pca$x[, 1]
+pc_2 <- pca$x[, 2]
+
+qplot(pc_1, pc_2, color = as.factor(data$Class)) +
+  xlab('Principal Component 1') +
+  ylab('Principal Component 2') +
+  ggtitle('PCA of Artificial Data') +
+  theme_minimal()
+```
