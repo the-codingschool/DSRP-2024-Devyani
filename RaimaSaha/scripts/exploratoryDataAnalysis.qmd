@@ -6,6 +6,7 @@
 -   how does location influence the sounds or behavior of a squirrel?
 -   which factors (**location**, time of day, **primary fur color**) most impact a squirrel's interaction with humans?
 -   make plots- scatterplots
+-   primary fur color: 1 = Gray, 2 = Cinnamon, 3 = Black
 
 Loading in new cleaned dataset
 

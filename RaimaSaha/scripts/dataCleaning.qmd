@@ -7,7 +7,7 @@ Reading in the data
 if (!require("dplyr")) install.packages("dplyr")
 if (!require("janitor")) install.packages("janitor")
 # if (!require("ggplot2")) install.packages("ggplot2")
-# if (!require("tidyr")) install.packages("tidyr")
+if (!require("tidyr")) install.packages("tidyr")
 # if (!require("sf")) install.packages("sf")
 # if (!require("mapview")) install.packages("mapview")
 # if (!require("maps")) install.packages("maps")
@@ -16,7 +16,7 @@ if (!require("janitor")) install.packages("janitor")
 # if (!require("e1071")) install.packages("e1071")
 # if (!require("plotly")) install.packages("plotly")
 # if (!require("gridExtra")) install.packages("gridExtra")
-# if (!require("readr")) install.packages("readr")
+if (!require("readr")) install.packages("readr")
 
 
 
@@ -24,7 +24,7 @@ if (!require("janitor")) install.packages("janitor")
 library(dplyr)
 library(janitor)
 # library(ggplot2)
-# library(tidyr)
+library(tidyr)
 # library(sf)
 # library(mapview)
 # library(maps)
@@ -33,7 +33,7 @@ library(janitor)
 # library(e1071)  # For logistic regression
 # library(plotly)  # For 3D plots
 # library(gridExtra)
-# library(readr)
+library(readr)
 
 getwd()
 
@@ -227,6 +227,24 @@ clean_data
 ```
 
 Changing primary_fur_color to numeric so I can conduct PCA on it. 1 = Gray, 2 = Cinnamon, 3 = Black.
+
+```{r}
+clean_data$primary_fur_color[clean_data$primary_fur_color == "Gray"] <- 1
+clean_data$primary_fur_color[clean_data$primary_fur_color == "Cinnamon"] <- 2
+clean_data$primary_fur_color[clean_data$primary_fur_color == "Black"] <- 3
+
+clean_data <- rename(clean_data, primary_fur_color_num = primary_fur_color)
+
+clean_data$primary_fur_color <- clean_data$primary_fur_color_num
+clean_data$primary_fur_color[clean_data$primary_fur_color == 1] <- "Gray"
+clean_data$primary_fur_color[clean_data$primary_fur_color == 2] <- "Cinnamon"
+clean_data$primary_fur_color[clean_data$primary_fur_color == 3] <- "Black"
+
+clean_data <- select(clean_data, latitude:age, primary_fur_color, primary_fur_color_num, everything())
+clean_data
+```
+
+Creating a new column called human_interaction with 1 = approaches, 2 = indifferent, 3 = runs from.
 
 Saving clean data to new .csv file
 

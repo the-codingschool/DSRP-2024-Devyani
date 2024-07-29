@@ -2,11 +2,54 @@
 
 Question: What factors impact squirrel's behavior around humans (approaches, runs from, or indifferent)?
 
+Loading in data
+
+```{r}
+# Install necessary packages if not already installed
+if (!require("dplyr")) install.packages("dplyr")
+if (!require("janitor")) install.packages("janitor")
+if (!require("ggplot2")) install.packages("ggplot2")
+if (!require("tidyr")) install.packages("tidyr")
+if (!require("sf")) install.packages("sf")
+if (!require("mapview")) install.packages("mapview")
+if (!require("maps")) install.packages("maps")
+if (!require("OpenStreetMap")) install.packages("OpenStreetMap")
+if (!require("caret")) install.packages("caret")
+if (!require("e1071")) install.packages("e1071")
+if (!require("plotly")) install.packages("plotly")
+if (!require("gridExtra")) install.packages("gridExtra")
+if (!require("readr")) install.packages("readr")
+
+# Load necessary libraries
+library(dplyr)
+library(janitor)
+library(ggplot2)
+library(tidyr)
+library(sf)
+library(mapview)
+library(maps)
+library(OpenStreetMap)
+library(caret)  # For cross-validation
+library(e1071)  # For logistic regression
+library(plotly)  # For 3D plots
+library(gridExtra)
+library(readr)
+
+getwd()
+
+filename <- "RaimaSaha/squirrel_data_clean.csv"
+
+clean_data <- read.csv(filename)  
+
+head(clean_data)
+clean_data
+```
+
 Conducting PCA
 
 ```{r}
 # Standardize the data for running:foraging
-scaled_data <- scale(clean_data[, 21:28])
+scaled_data <- scale(clean_data[, 22:29])
 
 # Perform PCA
 pca <- prcomp(scaled_data, center = TRUE, scale. = TRUE)
