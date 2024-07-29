@@ -49,7 +49,10 @@ Conducting PCA
 
 ```{r}
 # Standardize the data for running:foraging
-scaled_data <- scale(clean_data[, 22:29])
+temp_data <- clean_data |>
+  select(latitude, longitude, primary_fur_color_num) |>
+  drop_na()
+scaled_data <- scale(temp_data[, 1:2])
 
 # Perform PCA
 pca <- prcomp(scaled_data, center = TRUE, scale. = TRUE)
