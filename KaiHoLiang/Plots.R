@@ -84,4 +84,12 @@ ggplot(cleaned_squirrel_data, aes(x = `Primary Fur Color`, y = as.numeric(Runnin
   scale_y_continuous(breaks = c(0, 1), labels = c("No", "Yes")) +
   theme(legend.position = "none")
 
+# Plot activity levels (Running) by Age (Stacked Bar Chart)
+ggplot(cleaned_squirrel_data, aes(x = Age, fill = Running)) +
+  geom_bar(position = "stack") +
+  theme_minimal() +
+  labs(title = "Running Activity by Age", x = "Age", y = "Count") +
+  scale_fill_manual(values = c("FALSE" = "#d62728", "TRUE" = "#1f77b4"), name = "Running Activity",
+                    labels = c("Not Running", "Running"))
+
 
