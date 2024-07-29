@@ -1,0 +1,96 @@
+# Principal Component Analysis
+
+Question: What factors impact squirrel's behavior around humans (approaches, runs from, or indifferent)?
+
+Conducting PCA
+
+```{r}
+# Standardize the data for running:foraging
+scaled_data <- scale(clean_data[, 21:28])
+
+# Perform PCA
+pca <- prcomp(scaled_data, center = TRUE, scale. = TRUE)
+
+# Get covariance matrix and eigenvalues
+cov_matrix <- cov(scaled_data)
+eigenvalues <- pca$sdev^2
+explained_variance_ratio <- eigenvalues / sum(eigenvalues)
+
+print("Covariance Matrix:")
+print(cov_matrix)
+print("\nEigenvalues:")
+print(eigenvalues)
+
+# corrMatrix = np.corrcoef(x,y) #input values for each of the variables
+# # Plot the data:
+# plt.imshow(corrMatrix) 
+# plt.xlabel(‘x’)
+# plt.ylabel(‘y’)
+# plt.colorbar()
+# plt.show()
+```
+
+Explained variance ratio
+
+```{r}
+# Explained Variance Ratio
+total_explained_variances <- cumsum(explained_variance_ratio)
+
+print("Explained Variance Ratios:")
+print(explained_variance_ratio)
+
+for (i in 1:length(explained_variance_ratio)) {
+  cat('Total explained variance including', i, 'components:', total_explained_variances[i], '\n')
+  cat('We', ifelse(total_explained_variances[i] < 0.9, 'should use more components', 'do not need to use more components.'), '\n')
+}
+```
+
+Creating a scree plot
+
+```{r}
+scree_plot <- ggplot(data.frame(PC = 1:length(eigenvalues), Eigenvalue = eigenvalues), aes(x = PC, y = Eigenvalue)) +
+  geom_line() +
+  geom_point() +
+  xlab('Principal Component') +
+  ylab('Eigenvalue') +
+  ggtitle('Scree Plot') +
+  theme_minimal()
+
+print(scree_plot)
+```
+
+```{r}
+variance_df <- data.frame(PC = 1:length(explained_variance_ratio), Variance = explained_variance_ratio, Cumulative = total_explained_variances)
+variance_plot <- ggplot(variance_df, aes(x = PC)) +
+  geom_bar(aes(y = Variance), stat = 'identity', alpha = 0.5, fill = 'blue') +
+  geom_step(aes(y = Cumulative), color = 'red') +
+  xlab('Principal Components') +
+  ylab('Variance Explained') +
+  ggtitle('Explained Variance Ratio and Cumulative Explained Variance') +
+  theme_minimal()
+
+print(variance_plot)
+```
+
+```{r}
+print("Explained Variances:")
+print(eigenvalues)
+
+for (i in 1:length(eigenvalues)) {
+  ev <- eigenvalues[i]
+  cat('Component', i, ' has explained variance of:', ev, '\n')
+  cat('We will', ifelse(ev <= 1, 'not', ''), 'use this component.\n')
+}
+```
+
+```{r}
+# Visualize the top 2 components of the data
+pc_1 <- pca$x[, 1]
+pc_2 <- pca$x[, 2]
+
+qplot(pc_1, pc_2, color = as.factor(data$Class)) +
+  xlab('Principal Component 1') +
+  ylab('Principal Component 2') +
+  ggtitle('PCA of Artificial Data') +
+  theme_minimal()
+```

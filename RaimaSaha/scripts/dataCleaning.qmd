@@ -4,38 +4,37 @@ Reading in the data
 
 ```{r}
 # Install necessary packages if not already installed
-if (!require("titanic")) install.packages("titanic")
 if (!require("dplyr")) install.packages("dplyr")
 if (!require("janitor")) install.packages("janitor")
-if (!require("ggplot2")) install.packages("ggplot2")
-if (!require("tidyr")) install.packages("tidyr")
-if (!require("sf")) install.packages("sf")
-if (!require("mapview")) install.packages("mapview")
-if (!require("maps")) install.packages("maps")
-if (!require("OpenStreetMap")) install.packages("OpenStreetMap")
-if (!require("caret")) install.packages("caret")
-if (!require("e1071")) install.packages("e1071")
-if (!require("plotly")) install.packages("plotly")
-if (!require("gridExtra")) install.packages("gridExtra")
+# if (!require("ggplot2")) install.packages("ggplot2")
+# if (!require("tidyr")) install.packages("tidyr")
+# if (!require("sf")) install.packages("sf")
+# if (!require("mapview")) install.packages("mapview")
+# if (!require("maps")) install.packages("maps")
+# if (!require("OpenStreetMap")) install.packages("OpenStreetMap")
+# if (!require("caret")) install.packages("caret")
+# if (!require("e1071")) install.packages("e1071")
+# if (!require("plotly")) install.packages("plotly")
+# if (!require("gridExtra")) install.packages("gridExtra")
+# if (!require("readr")) install.packages("readr")
+
 
 
 # Load necessary libraries
-library(titanic)
 library(dplyr)
 library(janitor)
-library(ggplot2)
-library(tidyr)
-library(sf)
-library(mapview)
-library(maps)
-library(OpenStreetMap)
-library(caret)  # For cross-validation
-library(e1071)  # For logistic regression
-library(plotly)  # For 3D plots
-library(gridExtra)
+# library(ggplot2)
+# library(tidyr)
+# library(sf)
+# library(mapview)
+# library(maps)
+# library(OpenStreetMap)
+# library(caret)  # For cross-validation
+# library(e1071)  # For logistic regression
+# library(plotly)  # For 3D plots
+# library(gridExtra)
+# library(readr)
 
-# Load required libraries
-install.packages("ggplot2")     # For plotting
 getwd()
 
 filename <- "data/2018_Central_Park_Squirrel_Census_-_Squirrel_Data_20240721.csv"
@@ -227,309 +226,10 @@ clean_data[clean_data == TRUE] <- 1
 clean_data
 ```
 
-# Exploratory Data Analysis
+Changing primary_fur_color to numeric so I can conduct PCA on it. 1 = Gray, 2 = Cinnamon, 3 = Black.
 
-## Early questions
-
--   does age have any impact on how a squirrel acts (kuks, qaas, indifferent, etc.)?
--   how does location influence the sounds or behavior of a squirrel?
--   which factors (**location**, time of day, **primary fur color**) most impact a squirrel's interaction with humans?
--   make plots- scatterplots
-
-Looking at the structure of the data
+Saving clean data to new .csv file
 
 ```{r}
-str(clean_data)
-```
-
-Looking at the summary of the data
-
-```{r}
-summary(clean_data)
-```
-
-Comparing number of adult squirrels to juvenile squirrels
-
-```{r}
-age_column <- clean_data |>
-  select(age) |>
-  drop_na() # dropping NA values in the data set
-
-age_column |>
-  count(age) |>
-  ggplot(aes(x = age, y = n, fill = age)) +
-  geom_bar(stat = "identity") +
-  labs(title = "Number of Adults versus Juveniles",
-  x = "Age",
-  y = "Count",
-  fill = "Age")
-```
-
-I don't know what the pink (?) category. Take a look into the distribution of the data.
-
-```{r}
-table(clean_data$age) # distribution of adult and juvenile
-sum(is.na(clean_data$age)) # number of NA values
-```
-
-Creating plot to see trend between sighting above or below ground and date.
-
-```{r}
-location_date_column <- clean_data |>
-  select(location, date) |>
-  drop_na() # dropping NA values in the data set
-
-ggplot(location_date_column, aes(x = location, fill = factor(date))) + geom_bar(position = "dodge") 
-```
-
-We can see that squirrels are more likely to be found on the ground plane than above ground on any given day.
-
-Let's look at the location of a squirrel based on its fur color.
-
-```{r}
-location_fur_column <- clean_data |>
-  select(location, primary_fur_color) |>
-  drop_na() # dropping NA values in the data set
-
-ggplot(location_fur_column, aes(x = location, fill = primary_fur_color)) + geom_bar(position = "dodge") 
-```
-
-Not much can be discerned by the graph other than the trend discovered above, that squirrels tend to spotted more on the ground plane than above ground.
-
-Let's create a plot to see if a certain colored squirrel is to be spotted more on any given day.
-
-```{r}
-fur_date_column <- clean_data |>
-  select(primary_fur_color, date) |>
-  drop_na() # dropping NA values in the data set
-
-ggplot(fur_date_column, aes(x = primary_fur_color, fill = factor(date))) + geom_bar(position = "dodge") 
-```
-
-From this plot, we can see that squirrels with gray as their primary fur color are spotted more than squirrels with any other fur color. Maybe gray squirrels are the most common?
-
-I'm creating a plot to see how high each squirrel was spotted above ground based on primary fur color. Knowing that majority of the squirrels in the data set have gray fur color and they were spotted above ground the most, I wouldn't be surprised if the highest measurements belonged to them.
-
-```{r}
-fur_agm_column <- clean_data |>
-  select(primary_fur_color, above_ground_sighter_measurement) #|>
-  #drop_na() # dropping NA values in the data set
-
-ggplot(fur_agm_column, aes(x = primary_fur_color, y = above_ground_sighter_measurement)) + geom_bar(stat = "identity") 
-```
-
-My prediction was right.
-
-**IGNORE, COME BACK TO THIS:** Let's look at the relationship between primary fur colors and latitudinal and longitudinal locations.
-
-```{r}
-# lat_long <- clean_data |>
-#   select(latitude, longitude, primary_fur_color)
-# 
-# ggplot(data = lat_long, aes(map_id = city)) + geom_map(aes(fill = primary_fur_color, map = maps_data("city"))) 
-
-  
-
-upperLeft = c(40.75, -73.50)
-
-lowerRight = c(40.71, -73.43)
-
-base_map  = openmap(upperLeft, lowerRight, type="osm")
-
-plot(base_map)
-
-points <- st_as_sf(clean_data, coords = c("latitude", "longitude"), crs = 4326)
-
-plot(st_geometry(points), pch = 16, col = "navy", cex = 2, add = T)
-
-```
-
-Creating plot mapping out latitudes and longitudes in mapview. Shows distribution of squirrels without any context.
-
-```{r}
-mapview(clean_data, xcol = "longitude", ycol = "latitude", crs = 4326, grid = FALSE)
-
-
-```
-
-Created a pie chart of number of squirrels found running and not running
-
-```{r}
-pie(table(clean_data$running), main = "Running?",  labels = c("False", "True"), sep = "")
-
-table(clean_data$running)
-```
-
-Time of day vs primary fur color
-
-```{r}
-ggplot(clean_data, aes(x = shift, fill = primary_fur_color)) + geom_bar(position = "dodge")
-```
-
-Location vs primary fur color
-
-```{r}
-spec_data <- clean_data |>
-  select(primary_fur_color, location) |>
-  drop_na()
-
-ggplot(spec_data, aes(x = primary_fur_color, y = location, color = primary_fur_color)) + geom_count() + labs(title = "Location vs. Primary Fur Color", x = "Primary Fur Color", y = "Location", size = "Count", color = "Primary Fur Color")
-```
-
-Kuks vs primary fur color
-
-```{r}
-spec_data <- clean_data |>
-  select(primary_fur_color, kuks) |>
-  drop_na()
-
-ggplot(spec_data, aes(x = primary_fur_color, y = kuks, color = primary_fur_color)) + geom_count() + labs(title = "Kuks vs. Primary Fur Color", x = "Primary Fur Color", y = "Kuks", size = "Count", color = "Primary Fur Color")
-```
-
-foraging vs primary fur color
-
-```{r}
-spec_data <- clean_data |>
-  select(primary_fur_color, foraging) |>
-  drop_na()
-
-ggplot(spec_data, aes(x = primary_fur_color, y = foraging, color = primary_fur_color)) + geom_count() + labs(title = "Foraging vs. Primary Fur Color", x = "Primary Fur Color", y = "Foraging", size = "Count", color = "Primary Fur Color")
-```
-
-Looking at the distributions of adults and juveniles by latitudinal and longitudinal coordinates.
-
-```{r}
-my_sf <- clean_data |>
-  st_as_sf(coords = c('longitude', 'latitude')) |>
-  st_set_crs(4326)
-
-ggplot() + geom_sf(data = my_sf, aes(color = age)) + theme(axis.text.x = element_text(angle = 90))
-```
-
-Looking at squirrel location in relation to hectare, and also to foraging
-
-```{r}
-my_sf <- clean_data |>
-  st_as_sf(coords = c('longitude', 'latitude')) |>
-  st_set_crs(4326)
-
-ggplot() + geom_sf(data = my_sf, aes(color = hectare, shape = foraging)) + theme(axis.text.x = element_text(angle = 90))
-```
-
-```{r}
-my_sf <- clean_data |>
-  st_as_sf(coords = c('longitude', 'latitude')) |>
-  st_set_crs(4326)
-
-ggplot() + geom_sf(data = my_sf, aes(color = primary_fur_color)) + theme(axis.text.x = element_text(angle = 90))  
-```
-
-```{r}
-my_sf <- clean_data |>
-  filter(!is.na("longitude") & !is.na("latitude")) |>
-  st_as_sf(coords = c('longitude', 'latitude')) |>
-  st_set_crs(4326)
-
-ggplot() + geom_sf(data = my_sf, aes(color = primary_fur_color, shape = age), size = 2) + theme(axis.text.x = element_text(angle = 90)) +  facet_wrap(~primary_fur_color) 
-
-ggplot() + geom_sf(data = my_sf, aes(color = primary_fur_color, shape = age), size = 2) + theme(axis.text.x = element_text(angle = 90))
-
-summary(clean_data)
-```
-
-Looking at the date of the observations made vs. location in the park, also looking at age.
-
-```{r}
-my_sf <- clean_data |>
-  st_as_sf(coords = c('longitude', 'latitude')) |>
-  st_set_crs(4326)
-
-ggplot() + geom_sf(data = my_sf, aes(color = date, shape = age)) + theme(axis.text.x = element_text(angle = 90))
-```
-
-```{r}
-# Standardize the data for running:foraging
-scaled_data <- scale(clean_data[, 21:28])
-
-# Perform PCA
-pca <- prcomp(scaled_data, center = TRUE, scale. = TRUE)
-
-# Get covariance matrix and eigenvalues
-cov_matrix <- cov(scaled_data)
-eigenvalues <- pca$sdev^2
-explained_variance_ratio <- eigenvalues / sum(eigenvalues)
-
-print("Covariance Matrix:")
-print(cov_matrix)
-print("\nEigenvalues:")
-print(eigenvalues)
-
-corrMatrix = np.corrcoef(x,y) #input values for each of the variables
-# Plot the data:
-plt.imshow(corrMatrix) 
-plt.xlabel(‘x’)
-plt.ylabel(‘y’)
-plt.colorbar()
-plt.show()
-```
-
-```{r}
-# Explained Variance Ratio
-total_explained_variances <- cumsum(explained_variance_ratio)
-
-print("Explained Variance Ratios:")
-print(explained_variance_ratio)
-
-for (i in 1:length(explained_variance_ratio)) {
-  cat('Total explained variance including', i, 'components:', total_explained_variances[i], '\n')
-  cat('We', ifelse(total_explained_variances[i] < 0.9, 'should use more components', 'do not need to use more components.'), '\n')
-}
-```
-
-```{r}
-scree_plot <- ggplot(data.frame(PC = 1:length(eigenvalues), Eigenvalue = eigenvalues), aes(x = PC, y = Eigenvalue)) +
-  geom_line() +
-  geom_point() +
-  xlab('Principal Component') +
-  ylab('Eigenvalue') +
-  ggtitle('Scree Plot') +
-  theme_minimal()
-
-print(scree_plot)
-```
-
-```{r}
-variance_df <- data.frame(PC = 1:length(explained_variance_ratio), Variance = explained_variance_ratio, Cumulative = total_explained_variances)
-variance_plot <- ggplot(variance_df, aes(x = PC)) +
-  geom_bar(aes(y = Variance), stat = 'identity', alpha = 0.5, fill = 'blue') +
-  geom_step(aes(y = Cumulative), color = 'red') +
-  xlab('Principal Components') +
-  ylab('Variance Explained') +
-  ggtitle('Explained Variance Ratio and Cumulative Explained Variance') +
-  theme_minimal()
-
-print(variance_plot)
-```
-
-```{r}
-print("Explained Variances:")
-print(eigenvalues)
-
-for (i in 1:length(eigenvalues)) {
-  ev <- eigenvalues[i]
-  cat('Component', i, ' has explained variance of:', ev, '\n')
-  cat('We will', ifelse(ev <= 1, 'not', ''), 'use this component.\n')
-}
-```
-
-```{r}
-# Visualize the top 2 components of the data
-pc_1 <- pca$x[, 1]
-pc_2 <- pca$x[, 2]
-
-qplot(pc_1, pc_2, color = as.factor(data$Class)) +
-  xlab('Principal Component 1') +
-  ylab('Principal Component 2') +
-  ggtitle('PCA of Artificial Data') +
-  theme_minimal()
+write_csv(clean_data, "RaimaSaha/squirrel_data_clean.csv")
 ```
