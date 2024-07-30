@@ -247,10 +247,61 @@ clean_data
 Creating a new column called human_interaction with 0 = N/A, 1 = approaches, 2 = indifferent, 3 = runs from.
 
 ```{r}
+clean_data$human_interaction_num <- NA
+clean_data$human_interaction_num[clean_data$approaches == 1] <- 1
+clean_data$human_interaction_num[clean_data$indifferent == 1] <- 2
+clean_data$human_interaction_num[clean_data$runs_from == 1] <- 3
+
+clean_data <- select(clean_data, latitude:runs_from, human_interaction_num, everything())
+
+clean_data
+```
+
+Creating new column called human_interaction that is a char variable that says, approaches, indifferent, runs from.
+
+```{r}
 clean_data$human_interaction <- NA
-clean_data$human_interaction[clean_data$approaches == 1] <- 1
-clean_data$human_interaction[clean_data$indifferent == 1] <- 2
-clean_data$human_interaction[clean_data$runs_from == 1] <- 3
+clean_data$human_interaction[clean_data$human_interaction_num == 1] <- "approaches"
+clean_data$human_interaction[clean_data$human_interaction_num == 2] <- "indifferent"
+clean_data$human_interaction[clean_data$human_interaction_num == 3] <- "runs from"
+
+clean_data <- select(clean_data, latitude:runs_from, human_interaction, everything())
+
+clean_data
+```
+
+Encoding shift var so that 0 = AM and 1 = PM
+
+```{r}
+clean_data$shift_num <- NA
+clean_data$shift_num[clean_data$shift == "AM"] <- 0
+clean_data$shift_num[clean_data$shift == "PM"] <- 1
+
+clean_data <- select(clean_data, latitude:shift, shift_num, everything())
+
+clean_data
+```
+
+Encoding age variable so that 0 = Juvenile and 1 = Adult
+
+```{r}
+clean_data$age_num <- NA
+clean_data$age_num[clean_data$age == "Juvenile"] <- 0
+clean_data$age_num[clean_data$age == "Adult"] <- 1
+
+clean_data <- select(clean_data, latitude:age, age_num, everything())
+
+clean_data
+```
+
+Encoding location variable so 0 = Ground Plane and 1 = Above Ground
+
+```{r}
+clean_data$location_num <- NA
+clean_data$location_num[clean_data$location == "Ground Plane"] <- 0
+clean_data$location_num[clean_data$location == "Above Ground"] <- 1
+
+clean_data <- select(clean_data, latitude:location, location_num, everything())
 
 clean_data
 ```
