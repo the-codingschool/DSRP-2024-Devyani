@@ -17,7 +17,8 @@ if (!require("gridExtra")) install.packages("gridExtra")
 if (!require("readr")) install.packages("readr")
 if (!require("ggfortify")) install.packages("ggfortify")
 if (!require("corrplot")) install.packages("corrplot")
-
+if (!require("plotly")) install.packages("plotly")
+if (!require("stats")) install.packages("stats")
 
 # Load necessary libraries
 library(dplyr)
@@ -31,7 +32,10 @@ library(gridExtra)
 library(readr)
 library(ggfortify)
 library(corrplot)
+library(plotly)
+library(stats)
 
+# Loading in data
 getwd()
 
 filename <- "RaimaSaha/squirrel_data_clean.csv"
@@ -45,11 +49,11 @@ clean_data
 Conducting PCA
 
 ```{r}
-# Standardize the data for running:foraging
+# Standardize the data for 
 temp_data <- clean_data |>
-  select(latitude, longitude, primary_fur_color_num, shift_num, location_num, approaches, indifferent, runs_from) |>
+  select(latitude, longitude, primary_fur_color_num, shift_num, location_num, approaches, indifferent, runs_from, primary_fur_color) |>
   drop_na()
-scaled_data <- scale(temp_data[, ])
+scaled_data <- scale(temp_data[, 1:5])
 
 # Perform PCA
 pca <- prcomp(scaled_data, center = TRUE, scale. = TRUE)
@@ -72,6 +76,9 @@ print(eigenvalues)
 # plt.colorbar()
 # plt.show()
 pca
+explained_variance_ratio
+summary(pca)
+loadings(pca)
 ```
 
 Plotting the covariance matrix
@@ -172,19 +179,103 @@ plot(pca, type = "lines")
 3D PCA plot
 
 ```{r}
-pairs <- combn(ncol(pca$x), 2)
+pca
+components <- pca[["x"]]
+components <- data.frame(components)
+components$PC3 <- -components$PC3
+components$PC2 <- -components$PC2
+components = cbind(components, temp_data$primary_fur_color)
 
-plots <- list()
-for (i in 1:ncol(pairs)) {
-  pc1 <- pairs[1, i]
-  pc2 <- pairs[2, i]
-  plots[[i]] <- ggplot(data.frame(PC1 = pca$x[, pc1], PC2 = pca$x[, pc2], Class = as.factor(data$Class)), aes(x = PC1, y = PC2, color = Class)) +
-    geom_point() +
-    xlab(paste('Principal Component', pc1)) +
-    ylab(paste('Principal Component', pc2)) +
-    ggtitle(paste('PC', pc1, 'vs PC', pc2, 'with Total Explained Variance Ratios:', explained_variance_ratio[pc1] + explained_variance_ratio[pc2])) +
-    theme_minimal()
-}
+total_explained_variance_ratio <- summary(pca)[["importance"]]["Proportion of Variance",]
+total_explained_variance_ratio <- 100 * sum(total_explained_variance_ratio)
+total_explained_variance_ratio
 
-do.call(grid.arrange, c(plots, ncol=2))
+fig <- plot_ly(components, x = ~PC1, y = ~PC2, z = ~PC3, color = ~temp_data$primary_fur_color, colors = c('black','brown','gray') ) %>%
+  add_markers(size = 12)
+  
+fig <- fig %>%
+  layout(
+    title = cat("Total Explained Variance = ", total_explained_variance_ratio),
+    scene = list(bgcolor = "#e5ecf6")
+)
+
+fig
+
 ```
+
+```{r}
+components <- pca[["x"]]
+components <- data.frame(components)
+components <- cbind(components, temp_data$primary_fur_color)
+# components$PC3 <- -components$PC3
+components$PC2 <- -components$PC2
+
+axis = list(showline=FALSE,
+            zeroline=FALSE,
+            gridcolor='#ffff',
+            ticklen=4,
+            titlefont=list(size=13))
+
+fig <- components |>
+  plot_ly()  |>
+  add_trace(
+    type = 'splom',
+    dimensions = list(
+      list(label=paste('PC 1 (',toString(round(explained_variance_ratio[1],1)),'%)',sep = ''), values=~PC1),
+      list(label=paste('PC 2 (',toString(round(explained_variance_ratio[2],1)),'%)',sep = ''), values=~PC2),
+      list(label=paste('PC 3 (',toString(round(explained_variance_ratio[3],1)),'%)',sep = ''), values=~PC3),
+      list(label=paste('PC 4 (',toString(round(explained_variance_ratio[4],1)),'%)',sep = ''), values=~PC4),
+      list(label=paste('PC 5 (',toString(round(explained_variance_ratio[5],1)),'%)',sep = ''), values=~PC5)#,
+      # list(label=paste('PC 6 (',toString(round(explained_variance_ratio[6],1)),'%)',sep = ''), values=~PC6),
+      # list(label=paste('PC 7 (',toString(round(explained_variance_ratio[7],1)),'%)',sep = ''), values=~PC7),
+      # list(label=paste('PC 8 (',toString(round(explained_variance_ratio[8],1)),'%)',sep = ''), values=~PC8)
+    ),
+    color = ~temp_data$primary_fur_color, colors = c('black','brown','gray')
+  ) %>%
+  style(diagonal = list(visible = FALSE)) %>%
+  layout(
+    legend=list(title=list(text='color')),
+    hovermode='closest',
+    dragmode= 'select',
+    plot_bgcolor='rgba(240,240,240, 0.95)',
+    xaxis=list(domain=NULL, showline=F, zeroline=F, gridcolor='#ffff', ticklen=4),
+    yaxis=list(domain=NULL, showline=F, zeroline=F, gridcolor='#ffff', ticklen=4),
+    xaxis2=axis,
+    xaxis3=axis,
+    xaxis4=axis,
+    yaxis2=axis,
+    yaxis3=axis,
+    yaxis4=axis
+  )
+
+fig
+```
+
+Visualizing top two principal components in 2d
+
+```{r}
+fig <- plot_ly(components, x = ~PC1, y = ~PC2, color = ~temp_data$primary_fur_color, colors = c("black", "brown", "gray"), type = "scatter", mode = "markers") |>
+  layout(
+    legend = list(title = list(text='primary fur color')),
+    plot_bgcolor = "#e5ecf6",
+    xaxis = list(
+      title = "PC1",
+      zerolinecolor = "#ffff",
+      zerolinewidth = 2,
+      gridcolor = "#ffff"),
+    yaxis = list(
+      title = "PC2",
+      zerolinecolor = "#ffff",
+      zerolinewidth = 2,
+      gridcolor = "#ffff"))
+  fig
+
+```
+
+Findings:
+
+-   latitude and longitude accounted for the most variance
+
+-   explained variance ratios —\> use PC 1-4
+
+-   eigenvalues —\> use PC 1-3
