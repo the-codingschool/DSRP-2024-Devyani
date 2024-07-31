@@ -4,7 +4,7 @@ Loading in data and packages
 
 ```{r}
 # Install necessary packages if not already installed
-if (!require("dplyr")) install.packages("dplyr")
+if (!require("dplyr")) install.packages("dplyr") 
 if (!require("janitor")) install.packages("janitor")
 if (!require("ggplot2")) install.packages("ggplot2")
 if (!require("tidyr")) install.packages("tidyr")

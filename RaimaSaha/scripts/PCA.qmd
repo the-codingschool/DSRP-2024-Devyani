@@ -10,32 +10,31 @@ if (!require("dplyr")) install.packages("dplyr")
 if (!require("janitor")) install.packages("janitor")
 if (!require("ggplot2")) install.packages("ggplot2")
 if (!require("tidyr")) install.packages("tidyr")
+if (!require("sf")) install.packages("sf")
+if (!require("mapview")) install.packages("mapview")
+if (!require("maps")) install.packages("maps")
+if (!require("OpenStreetMap")) install.packages("OpenStreetMap")
 if (!require("caret")) install.packages("caret")
 if (!require("e1071")) install.packages("e1071")
 if (!require("plotly")) install.packages("plotly")
 if (!require("gridExtra")) install.packages("gridExtra")
 if (!require("readr")) install.packages("readr")
-if (!require("ggfortify")) install.packages("ggfortify")
-if (!require("corrplot")) install.packages("corrplot")
-if (!require("plotly")) install.packages("plotly")
-if (!require("stats")) install.packages("stats")
 
 # Load necessary libraries
 library(dplyr)
 library(janitor)
 library(ggplot2)
 library(tidyr)
+library(sf)
+library(mapview)
+library(maps)
+library(OpenStreetMap)
 library(caret)  # For cross-validation
 library(e1071)  # For logistic regression
 library(plotly)  # For 3D plots
 library(gridExtra)
 library(readr)
-library(ggfortify)
-library(corrplot)
-library(plotly)
-library(stats)
 
-# Loading in data
 getwd()
 
 filename <- "RaimaSaha/squirrel_data_clean.csv"
@@ -49,11 +48,11 @@ clean_data
 Conducting PCA
 
 ```{r}
-# Standardize the data for 
+# Standardize the data for running:foraging
 temp_data <- clean_data |>
-  select(latitude, longitude, primary_fur_color_num, shift_num, location_num, approaches, indifferent, runs_from, primary_fur_color) |>
+  select(latitude, longitude, primary_fur_color_num) |>
   drop_na()
-scaled_data <- scale(temp_data[, 1:5])
+scaled_data <- scale(temp_data[, 1:2])
 
 # Perform PCA
 pca <- prcomp(scaled_data, center = TRUE, scale. = TRUE)
@@ -70,24 +69,14 @@ print(eigenvalues)
 
 # corrMatrix = np.corrcoef(x,y) #input values for each of the variables
 # # Plot the data:
-# plt.imshow(corrMatrix)
+# plt.imshow(corrMatrix) 
 # plt.xlabel(‘x’)
 # plt.ylabel(‘y’)
 # plt.colorbar()
 # plt.show()
-pca
-explained_variance_ratio
-summary(pca)
-loadings(pca)
 ```
 
-Plotting the covariance matrix
-
-```{r}
-corrplot(cov_matrix, method = "color")
-```
-
-Explained variance ratio - keep components that explain 90-95% variance
+Explained variance ratio
 
 ```{r}
 # Explained Variance Ratio
@@ -102,10 +91,10 @@ for (i in 1:length(explained_variance_ratio)) {
 }
 ```
 
-Creating a scree plot - stop including values where they start to plateau
+Creating a scree plot
 
 ```{r}
-scree_plot <- ggplot(data.frame(PC = 1:length(eigenvalues), Eigenvalue = eigenvalues), aes(x = PC, y = Eigenvalue), xlim = c(0,5)) +
+scree_plot <- ggplot(data.frame(PC = 1:length(eigenvalues), Eigenvalue = eigenvalues), aes(x = PC, y = Eigenvalue)) +
   geom_line() +
   geom_point() +
   xlab('Principal Component') +
@@ -115,8 +104,6 @@ scree_plot <- ggplot(data.frame(PC = 1:length(eigenvalues), Eigenvalue = eigenva
 
 print(scree_plot)
 ```
-
-Creating a variance plot
 
 ```{r}
 variance_df <- data.frame(PC = 1:length(explained_variance_ratio), Variance = explained_variance_ratio, Cumulative = total_explained_variances)
@@ -131,8 +118,6 @@ variance_plot <- ggplot(variance_df, aes(x = PC)) +
 print(variance_plot)
 ```
 
-Kaiser's Criterion – keep all eigenvalues greater that 1
-
 ```{r}
 print("Explained Variances:")
 print(eigenvalues)
@@ -144,138 +129,14 @@ for (i in 1:length(eigenvalues)) {
 }
 ```
 
-Visualizing the top two components
-
 ```{r}
 # Visualize the top 2 components of the data
 pc_1 <- pca$x[, 1]
 pc_2 <- pca$x[, 2]
 
-# x <- list(pc_1 = pc_1, pc_2 = pc_2)
-# pca_data <- as.data.frame(x)
-# pca_data
-# ?qplot
-
-autoplot(pca, scaled_data, color = "primary_fur_color_num") +
+qplot(pc_1, pc_2, color = as.factor(data$Class)) +
   xlab('Principal Component 1') +
   ylab('Principal Component 2') +
-  ggtitle('PCA of Data') +
+  ggtitle('PCA of Artificial Data') +
   theme_minimal()
 ```
-
-Better understanding of the linear transformation of the features
-
-```{r}
-biplot(pca)
-```
-
-Plotting the PCA
-
-```{r}
-plot(pca, type = "bar")
-plot(pca, type = "lines")
-```
-
-3D PCA plot
-
-```{r}
-pca
-components <- pca[["x"]]
-components <- data.frame(components)
-components$PC3 <- -components$PC3
-components$PC2 <- -components$PC2
-components = cbind(components, temp_data$primary_fur_color)
-
-total_explained_variance_ratio <- summary(pca)[["importance"]]["Proportion of Variance",]
-total_explained_variance_ratio <- 100 * sum(total_explained_variance_ratio)
-total_explained_variance_ratio
-
-fig <- plot_ly(components, x = ~PC1, y = ~PC2, z = ~PC3, color = ~temp_data$primary_fur_color, colors = c('black','brown','gray') ) %>%
-  add_markers(size = 12)
-  
-fig <- fig %>%
-  layout(
-    title = cat("Total Explained Variance = ", total_explained_variance_ratio),
-    scene = list(bgcolor = "#e5ecf6")
-)
-
-fig
-
-```
-
-```{r}
-components <- pca[["x"]]
-components <- data.frame(components)
-components <- cbind(components, temp_data$primary_fur_color)
-# components$PC3 <- -components$PC3
-components$PC2 <- -components$PC2
-
-axis = list(showline=FALSE,
-            zeroline=FALSE,
-            gridcolor='#ffff',
-            ticklen=4,
-            titlefont=list(size=13))
-
-fig <- components |>
-  plot_ly()  |>
-  add_trace(
-    type = 'splom',
-    dimensions = list(
-      list(label=paste('PC 1 (',toString(round(explained_variance_ratio[1],1)),'%)',sep = ''), values=~PC1),
-      list(label=paste('PC 2 (',toString(round(explained_variance_ratio[2],1)),'%)',sep = ''), values=~PC2),
-      list(label=paste('PC 3 (',toString(round(explained_variance_ratio[3],1)),'%)',sep = ''), values=~PC3),
-      list(label=paste('PC 4 (',toString(round(explained_variance_ratio[4],1)),'%)',sep = ''), values=~PC4),
-      list(label=paste('PC 5 (',toString(round(explained_variance_ratio[5],1)),'%)',sep = ''), values=~PC5)#,
-      # list(label=paste('PC 6 (',toString(round(explained_variance_ratio[6],1)),'%)',sep = ''), values=~PC6),
-      # list(label=paste('PC 7 (',toString(round(explained_variance_ratio[7],1)),'%)',sep = ''), values=~PC7),
-      # list(label=paste('PC 8 (',toString(round(explained_variance_ratio[8],1)),'%)',sep = ''), values=~PC8)
-    ),
-    color = ~temp_data$primary_fur_color, colors = c('black','brown','gray')
-  ) %>%
-  style(diagonal = list(visible = FALSE)) %>%
-  layout(
-    legend=list(title=list(text='color')),
-    hovermode='closest',
-    dragmode= 'select',
-    plot_bgcolor='rgba(240,240,240, 0.95)',
-    xaxis=list(domain=NULL, showline=F, zeroline=F, gridcolor='#ffff', ticklen=4),
-    yaxis=list(domain=NULL, showline=F, zeroline=F, gridcolor='#ffff', ticklen=4),
-    xaxis2=axis,
-    xaxis3=axis,
-    xaxis4=axis,
-    yaxis2=axis,
-    yaxis3=axis,
-    yaxis4=axis
-  )
-
-fig
-```
-
-Visualizing top two principal components in 2d
-
-```{r}
-fig <- plot_ly(components, x = ~PC1, y = ~PC2, color = ~temp_data$primary_fur_color, colors = c("black", "brown", "gray"), type = "scatter", mode = "markers") |>
-  layout(
-    legend = list(title = list(text='primary fur color')),
-    plot_bgcolor = "#e5ecf6",
-    xaxis = list(
-      title = "PC1",
-      zerolinecolor = "#ffff",
-      zerolinewidth = 2,
-      gridcolor = "#ffff"),
-    yaxis = list(
-      title = "PC2",
-      zerolinecolor = "#ffff",
-      zerolinewidth = 2,
-      gridcolor = "#ffff"))
-  fig
-
-```
-
-Findings:
-
--   latitude and longitude accounted for the most variance
-
--   explained variance ratios —\> use PC 1-4
-
--   eigenvalues —\> use PC 1-3
