@@ -1,0 +1,144 @@
+# Chi-Squared Testing
+
+Loading in data and packages
+
+```{r}
+# Install necessary packages if not already installed
+if (!require("dplyr")) install.packages("dplyr")
+if (!require("janitor")) install.packages("janitor")
+if (!require("ggplot2")) install.packages("ggplot2")
+if (!require("tidyr")) install.packages("tidyr")
+if (!require("stringr")) install.packages("stringr")
+
+# Load necessary libraries
+library(tidyr) 
+library(tidyverse) 
+library(dplyr) 
+library(ggplot2) 
+library(stringr)
+
+# Loading in data
+getwd()
+
+filename <- "RaimaSaha/squirrel_data_clean.csv"
+
+clean_data <- read.csv(filename)  
+
+head(clean_data)
+clean_data
+```
+
+Null hypothesis: There is no significant relationship or correlation between variable \_\_\_\_\_ and human_interaction.
+
+Alternative hypothesis: There is a significant relationship or correlation between variable \_\_\_\_\_\_ and human_interaction.
+
+Setting significance level at 0.05 – if p-value is less than 0.05, then there is a correlation between \_\_\_\_\_\_\_\_ and human_interaction; otherwise, there isn't.
+
+Conducting chi-squared analysis between hectare and human interaction
+
+```{r}
+# creating a contingency table
+contingency_table <- table(clean_data$hectare, clean_data$human_interaction)
+
+# performing chi-squared test
+chisq_results <- chisq.test(contingency_table)
+```
+
+Extracting results
+
+```{r}
+# extracting p-value
+p_val <- chisq_results$p.value
+p_val
+
+# extracting residuals
+residuals <- chisq_results$residuals
+residuals
+```
+
+**FIX THIS!!!** Too few data points per each value occurrence is causing chi-squared test to be faulty and not produce a p-value. Creating a new version of the hectare column where it will only grouped by numbers. For example, entries that correspond with 42A-42C will be grouped under 42.
+
+```{r}
+# hectare_group_data <- gsub(c("A", "B", "C", "D", "E", "F", "G", "H", "I"),"", as.character(clean_data$hectare))
+# hectare_group_data <- gsub("B","", as.character(clean_data$hectare))
+# hectare_group_data <- gsub("C","", as.character(clean_data$hectare))
+# hectare_group_data <- gsub("D","", as.character(clean_data$hectare))
+# hectare_group_data <- gsub("E","", as.character(clean_data$hectare))
+# hectare_group_data <- gsub("F","", as.character(clean_data$hectare))
+# hectare_group_data <- gsub("G","", as.character(clean_data$hectare))
+# hectare_group_data <- gsub("H","", as.character(clean_data$hectare))
+# hectare_group_data <- gsub("I","", as.character(clean_data$hectare))
+clean_data <- str_replace_all(hectare, c("A", "B", "C", "D", "E", "F", "G", "H", "I"), "")
+hectare_group_data
+```
+
+Conducting chi-squared analysis between shift and human interaction
+
+```{r}
+# creating a contingency table
+contingency_table <- table(clean_data$shift, clean_data$human_interaction)
+
+# performing chi-squared test
+chisq_results <- chisq.test(contingency_table)
+```
+
+Extracting results
+
+```{r}
+# extracting p-value
+p_val <- chisq_results$p.value
+p_val
+
+# extracting residuals
+residuals <- chisq_results$residuals
+residuals
+```
+
+0.005426958 \< 0.05 ∴ there is statistically significant association between shift and human interaction.
+
+Conducting chi-squared analysis between location and human interaction
+
+```{r}
+# creating a contingency table
+contingency_table <- table(clean_data$location, clean_data$human_interaction)
+
+# performing chi-squared test
+chisq_results <- chisq.test(contingency_table)
+```
+
+Extracting results
+
+```{r}
+# extracting p-value
+p_val <- chisq_results$p.value
+p_val
+
+# extracting residuals
+residuals <- chisq_results$residuals
+residuals
+```
+
+0.008341746 \< 0.05 ∴ there is a statistically significant association between ground location and human interaction.
+
+Conducting chi-squared analysis between primary fur color and human interaction
+
+```{r}
+# creating a contingency table
+contingency_table <- table(clean_data$primary_fur_color, clean_data$human_interaction)
+
+# performing chi-squared test
+chisq_results <- chisq.test(contingency_table)
+```
+
+Extracting results
+
+```{r}
+p_val <- chisq_results$p.value
+p_val
+
+# extracting residuals
+residuals <- chisq_results$residuals
+residuals
+```
+
+6.31357e-06 \< 0.05 ∴ there is a statistically significant association between primary fur color and human interaction.
