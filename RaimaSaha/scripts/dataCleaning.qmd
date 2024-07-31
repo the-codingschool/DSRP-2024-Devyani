@@ -213,7 +213,7 @@ nec_data
 Putting result of final step of cleaning process (for now) in the variable clean_data.
 
 ```{r}
-clean_data <- date_data
+clean_data <- nec_data
 clean_data
 ```
 

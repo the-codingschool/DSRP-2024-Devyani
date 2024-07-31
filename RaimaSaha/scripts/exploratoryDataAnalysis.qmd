@@ -228,7 +228,7 @@ my_sf <- clean_data |>
   st_as_sf(coords = c('longitude', 'latitude')) |>
   st_set_crs(4326)
 
-ggplot() + geom_sf(data = my_sf, aes(color = hectare, shape = factor(foraging))) + theme(axis.text.x = element_text(angle = 90))
+ggplot() + geom_sf(data = my_sf, aes(color = hectare, shape = factor(foraging))) + labs(shape = "foraging") + theme(axis.text.x = element_text(angle = 90))
 ```
 
 Looking at latitudinal/longitudinal coordinates in relation to primary fur color
