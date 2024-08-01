@@ -4,7 +4,7 @@ Loading in data and packages
 
 ```{r}
 # Install necessary packages if not already installed
-if (!require("dplyr")) install.packages("dplyr")
+if (!require("dplyr")) install.packages("dplyr") 
 if (!require("janitor")) install.packages("janitor")
 if (!require("ggplot2")) install.packages("ggplot2")
 if (!require("tidyr")) install.packages("tidyr")
@@ -68,18 +68,47 @@ residuals
 # hectare_group_data <- gsub("G","", as.character(clean_data$hectare))
 # hectare_group_data <- gsub("H","", as.character(clean_data$hectare))
 # hectare_group_data <- gsub("I","", as.character(clean_data$hectare))
-clean_data <- str_replace_all(hectare, c("A", "B", "C", "D", "E", "F", "G", "H", "I"), "")
+
+hectare_group_data <- clean_data |> 
+  list(x = _) |>
+  with(replace(x, TRUE, lapply(x, trimws, whitespace = "\\D"))) |>
+  type.convert(as.is = TRUE)
+
+# hectare_group_data <- gsub(clean_data, "//D", "")
 hectare_group_data
 ```
 
-Conducting chi-squared analysis between shift and human interaction
+Conducting chi-squared analysis between hectare (number) and human interaction.
+
+```{r}
+contingency_table <- table(hectare_group_data$hectare, hectare_group_data$human_interaction)
+
+# performing chi-squared test
+chisq_results <- chisq.test(contingency_table)
+```
+
+Extracting results
+
+```{r}
+# extracting p-value
+p_val <- chisq_results$p.value
+p_val
+
+# extracting residuals
+residuals <- chisq_results$residuals
+residuals
+```
+
+Conducting chi-squared analysis between shift and human interaction.
 
 ```{r}
 # creating a contingency table
 contingency_table <- table(clean_data$shift, clean_data$human_interaction)
+contingency_table
 
 # performing chi-squared test
 chisq_results <- chisq.test(contingency_table)
+chisq_results
 ```
 
 Extracting results
