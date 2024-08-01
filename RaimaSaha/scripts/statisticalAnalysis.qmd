@@ -1,6 +1,14 @@
 # Chi-Squared Testing
 
-Loading in data and packages
+**MAKE SOME PLOTS**
+
+Conducting a chi-square test to test whether there is a correlation between two variables or not.
+
+Null hypothesis: There is no significant relationship or correlation between variable \_\_\_\_\_ and human_interaction.
+
+Alternative hypothesis: There is a significant relationship or correlation between variable \_\_\_\_\_\_ and human_interaction.
+
+Setting significance level at 0.05 – if p-value is less than 0.05, then there is a correlation between \_\_\_\_\_\_\_\_ and human_interaction; otherwise, there isn't.
 
 ```{r}
 # Install necessary packages if not already installed
@@ -9,6 +17,7 @@ if (!require("janitor")) install.packages("janitor")
 if (!require("ggplot2")) install.packages("ggplot2")
 if (!require("tidyr")) install.packages("tidyr")
 if (!require("stringr")) install.packages("stringr")
+if (!require("corrplot")) install.packages("corrplot")
 
 # Load necessary libraries
 library(tidyr) 
@@ -16,6 +25,7 @@ library(tidyverse)
 library(dplyr) 
 library(ggplot2) 
 library(stringr)
+library(corrplot)
 
 # Loading in data
 getwd()
@@ -27,12 +37,6 @@ clean_data <- read.csv(filename)
 head(clean_data)
 clean_data
 ```
-
-Null hypothesis: There is no significant relationship or correlation between variable \_\_\_\_\_ and human_interaction.
-
-Alternative hypothesis: There is a significant relationship or correlation between variable \_\_\_\_\_\_ and human_interaction.
-
-Setting significance level at 0.05 – if p-value is less than 0.05, then there is a correlation between \_\_\_\_\_\_\_\_ and human_interaction; otherwise, there isn't.
 
 Conducting chi-squared analysis between hectare and human interaction
 
@@ -68,20 +72,30 @@ residuals
 # hectare_group_data <- gsub("G","", as.character(clean_data$hectare))
 # hectare_group_data <- gsub("H","", as.character(clean_data$hectare))
 # hectare_group_data <- gsub("I","", as.character(clean_data$hectare))
+clean_data
 
-hectare_group_data <- clean_data |> 
-  list(x = _) |>
-  with(replace(x, TRUE, lapply(x, trimws, whitespace = "\\D"))) |>
-  type.convert(as.is = TRUE)
+clean_data$hectare_num <- clean_data$hectare
+clean_data <- clean_data |>
+  select(latitude:hectare, hectare_num, everything())
+clean_data
+
+# clean_data$hectare_num <- clean_data[["hectare_num"]] |>
+#   # list(x = "hectare_num") |>
+#   with(replace(x, TRUE, lapply(x, trimws, whitespace = "\\D"))) #|>
+#   # type.convert(as.is = TRUE)
+
+clean_data$hectare_num <- type.convert(with(lapply(clean_data, trimws, whitespace = "\\D")), as.is = FALSE)
 
 # hectare_group_data <- gsub(clean_data, "//D", "")
-hectare_group_data
+# hectare_group_data$hectare <- as.factor(hectare_group_data$hectare)
+# 
+clean_data
 ```
 
 Conducting chi-squared analysis between hectare (number) and human interaction.
 
 ```{r}
-contingency_table <- table(hectare_group_data$hectare, hectare_group_data$human_interaction)
+contingency_table <- table(hectare_group_data$human_interaction, hectare_group_data$hectare)
 
 # performing chi-squared test
 chisq_results <- chisq.test(contingency_table)
