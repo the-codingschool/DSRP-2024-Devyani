@@ -1,0 +1,149 @@
+# KNN Model
+
+Implementing a KNN model to see how factors (location, primary fur color, hectare, shift) affect how a squirrel interacts with humans.
+
+```{r}
+# Install packages if necessary
+install.packages("ggplot2")
+install.packages("caTools")
+install.packages("readr")
+install.packages("downloader")
+install.packages("caTools")
+install.packages("FNN")
+install.packages("readxl")
+install.packages("plotly")
+install.packages("tidyverse")
+install.packages("tidymodels")
+
+# Load libraries
+library(ggplot2)
+library(caTools)
+library(readr)
+library(downloader)
+library(caTools)
+library(FNN)
+library(readxl)
+library(plotly)
+library(tidyverse)
+library(tidymodels)
+
+# Loading in data
+getwd()
+
+filename <- "RaimaSaha/squirrel_data_clean.csv"
+
+clean_data <- read.csv(filename)  
+
+head(clean_data)
+clean_data
+```
+
+Creating a subset of data using features (location, hectare, shift, primary fur color) we need
+
+```{r}
+knn_clean_data <- clean_data |>
+  select(latitude, longitude, location_num, shift_num, primary_fur_color_num, human_interaction) |>
+  na.omit() # omitting any missing data
+
+knn_clean_data
+```
+
+Splitting data into training and testing sets
+
+```{r}
+set.seed(42)
+
+data <- knn_clean_data[, c("latitude", "longitude", "location_num", "shift_num", "primary_fur_color_num", "human_interaction")]
+
+split <- sample.split(data$human_interaction, SplitRatio = 0.8)
+train_data <- subset(data, split == TRUE)
+test_data <- subset(data, split == FALSE)
+```
+
+Fitting model to training data based on k = 5
+
+```{r}
+knn_model <- knn(train = train_data[,c("latitude", "longitude", "location_num", "shift_num", "primary_fur_color_num")], test = test_data[, c("latitude", "longitude", "location_num", "shift_num", "primary_fur_color_num")], cl = train_data$human_interaction, k = 5)
+```
+
+Testing model
+
+```{r}
+pred <- knn_model
+```
+
+Evaluating model
+
+```{r}
+confusion_matrix <- table(test_data$human_interaction, pred)
+accuracy <- sum(diag(confusion_matrix)) / sum(confusion_matrix)
+
+# Print the evaluation metrics
+confusion_matrix
+accuracy
+```
+
+Plotting
+
+```{r}
+# fig <- plot_ly(data = data, x = ~primary_fur_color_num, y = ~shift_num, type = 'scatter', mode = 'markers',alpha = 0.5, symbol = ~human_interaction, symbols = c('square','circle','square-dot','circle-dot'),
+#                marker = list(size = 12,
+#                              color = 'lightyellow',
+#                              line = list(color = 'black',width = 1)))
+# 
+# fig
+
+fig <- plot_ly(data = data, x = ~primary_fur_color_num, y = ~shift_num, type = 'bar', barmode = 'group',alpha = 0.5, color = ~human_interaction, symbols = c('square','circle','square-dot','circle-dot'))
+
+fig
+
+
+```
+
+Creating a data frame that creates different KNN models based on different values of k and tracks to see how accuracy changes.
+
+```{r}
+k_vector = c()
+accuracy_vector = c()
+
+for (i in 1:20) {
+  knn_model <- knn(train = train_data[,c("latitude", "longitude", "location_num", "shift_num", "primary_fur_color_num")], test = test_data[, c("latitude", "longitude", "location_num", "shift_num", "primary_fur_color_num")], cl = train_data$human_interaction, k = i)
+  
+  pred <- knn_model
+  confusion_matrix <- table(test_data$human_interaction, pred)
+  accuracy <- sum(diag(confusion_matrix)) / sum(confusion_matrix)
+   
+  k_vector <- append(k_vector, i)
+  accuracy_vector <- append(accuracy_vector, accuracy)
+  
+}
+df <- data.frame(k = k_vector, accuracy = accuracy_vector)
+df
+max(df$accuracy)
+```
+
+Plotting k values
+
+```{r}
+ggplot(df, aes(x = k, y = accuracy)) + geom_bar(stat = "identity") + geom_text(label = accuracy) 
+```
+
+Plotting k values with plotly
+
+```{r}
+fig <- plot_ly(
+  x = k_vector,
+  y = accuracy_vector,
+  name = "Measure of accuracy based on k",
+  type = "bar"
+) |>
+  layout(title = "Accuracy based on values of k", plot_bgcolor = "#e5ecf6",
+         xaxis = list(title = "Values of k"), yaxis = list(title = "Accuracy levels"))
+  
+fig
+```
+
+```{r}
+fig <- plotly(z = ~primary_fur_color_num,  colorscale='RdBu', type = "contour")
+fig
+```
