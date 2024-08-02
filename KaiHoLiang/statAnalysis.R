@@ -3,12 +3,14 @@ install.packages("dplyr")
 install.packages("ggplot2")
 install.packages("tidyr")
 install.packages("pROC")
+install.packages("ggrepel")
 
 library(readr)
 library(dplyr)
 library(ggplot2)
 library(tidyr)
 library(pROC)
+library(ggrepel)
 
 # Load cleaned data
 cleaned_squirrel_data <- read_csv("cleaned_squirrel_data.csv")
@@ -65,3 +67,18 @@ if (t_test_result$p.value < 0.05) {
 # - The chi-squared test assumes that the expected frequencies in each cell of the contingency table are sufficiently large.
 # - The independent t-test assumes that the data is normally distributed and that the variances of the two groups are equal.
 # - Limitations may include potential biases in the data collection process or missing data.
+
+
+lm_model <- lm(`Hectare Squirrel Number` ~ Running, data = cleaned_squirrel_data_filtered)
+
+# Summary of the linear regression model
+summary(lm_model)
+
+# Plotting the linear regression line on the plot
+ggplot(cleaned_squirrel_data_filtered, aes(x = Running, y = `Hectare Squirrel Number`)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", col = "red", se = FALSE) +  
+  labs(title = "Linear Regression of Hectare Squirrel Number on Running Activity",
+       y = "Hectare Squirrel Number",
+       x = "Running Activity") +
+  theme_minimal()

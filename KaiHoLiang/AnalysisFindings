@@ -1,0 +1,9 @@
+Plot 1: Linear Regression of Hectare Squirrel Number on Running Activity
+Observation:
+The plot shows the distribution of Hectare Squirrel Number across running and non-running squirrels.
+Analysis: There is no clear trend or significant difference in the Hectare Squirrel Number based on running activity, which is consistent with the t-test result indicating no significant difference.
+
+Plot 2: ROC Curve for Logistic Regression Model
+Observation:
+The ROC curve for the logistic regression model shows the trade-off between sensitivity and specificity.
+Analysis: The AUC value of 0.535 suggests that the model has limited discriminatory power, performing only slightly better than random chance.
