@@ -79,17 +79,18 @@ clean_data <- clean_data |>
   select(latitude:hectare, hectare_num, everything())
 clean_data
 
-# clean_data$hectare_num <- clean_data[["hectare_num"]] |>
-#   # list(x = "hectare_num") |>
-#   with(replace(x, TRUE, lapply(x, trimws, whitespace = "\\D"))) #|>
-#   # type.convert(as.is = TRUE)
+hectare_num <- clean_data |>
+   list(x = _) |>
+  with(replace(x, TRUE, lapply(x, trimws, whitespace = "\\D"))) |>
+   type.convert(as.is = TRUE)
 
-clean_data$hectare_num <- type.convert(with(lapply(clean_data, trimws, whitespace = "\\D")), as.is = FALSE)
+# clean_data$hectare_num <- type.convert(with(replace(x, TRUE, lapply(clean_data, trimws, whitespace = "\\D")), as.is = FALSE))
 
+hectare_group_data <- gsub("//D","", as.character(clean_data$hectare))
 # hectare_group_data <- gsub(clean_data, "//D", "")
 # hectare_group_data$hectare <- as.factor(hectare_group_data$hectare)
 # 
-clean_data
+hectare_group_data
 ```
 
 Conducting chi-squared analysis between hectare (number) and human interaction.
@@ -135,9 +136,21 @@ p_val
 # extracting residuals
 residuals <- chisq_results$residuals
 residuals
+
+shift_observed <- chisq_results$observed
+shift_observed
+
+shift_expected <- chisq_results$expected
+shift_expected
 ```
 
-0.005426958 \< 0.05 ∴ there is statistically significant association between shift and human interaction.
+0.005426958 \< 0.05 ∴ reject the null hypothesis since there is statistically significant association between shift and human interaction.
+
+Correlation plot of shift and human interaction
+
+```{r}
+corrplot(chisq_results$residuals, is.cor = FALSE, method = "color")
+```
 
 Conducting chi-squared analysis between location and human interaction
 
@@ -161,7 +174,13 @@ residuals <- chisq_results$residuals
 residuals
 ```
 
-0.008341746 \< 0.05 ∴ there is a statistically significant association between ground location and human interaction.
+0.008341746 \< 0.05 ∴ reject the null hypothesis since there is a statistically significant association between ground location and human interaction.
+
+Correlation plot of location and human interaction
+
+```{r}
+corrplot(chisq_results$residuals, is.cor = FALSE, method = "color")
+```
 
 Conducting chi-squared analysis between primary fur color and human interaction
 
@@ -184,4 +203,10 @@ residuals <- chisq_results$residuals
 residuals
 ```
 
-6.31357e-06 \< 0.05 ∴ there is a statistically significant association between primary fur color and human interaction.
+6.31357e-06 \< 0.05 ∴ reject the null hypothesis since there is a statistically significant association between primary fur color and human interaction.
+
+Correlation plot of primary fur color and human interaction
+
+```{r}
+corrplot(chisq_results$residuals, is.cor = FALSE, method = "color")
+```

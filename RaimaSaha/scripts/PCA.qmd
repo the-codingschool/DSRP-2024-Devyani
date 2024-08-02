@@ -49,7 +49,7 @@ clean_data
 Conducting PCA
 
 ```{r}
-# Standardize the data for 
+# Standardize the data for latitude, longitude, primary_fur_color_num, shift_num, location_num, approaches, indifferent, runs_from, primary_fur_color
 temp_data <- clean_data |>
   select(latitude, longitude, primary_fur_color_num, shift_num, location_num, approaches, indifferent, runs_from, primary_fur_color) |>
   drop_na()
