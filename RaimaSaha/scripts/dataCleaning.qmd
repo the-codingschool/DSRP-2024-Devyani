@@ -203,17 +203,10 @@ date_data$runs_from <- as.logical(date_data$runs_from)
 date_data
 ```
 
-Getting rid of random i column at the end of dataset.
-
-```{r}
-nec_data <- select(date_data, !i)
-nec_data
-```
-
 Putting result of final step of cleaning process (for now) in the variable clean_data.
 
 ```{r}
-clean_data <- nec_data
+clean_data <- date_data
 clean_data
 ```
 
@@ -276,7 +269,7 @@ Encoding shift var so that 0 = AM and 1 = PM
 clean_data$shift_num <- NA
 clean_data$shift_num[clean_data$shift == "AM"] <- 0
 clean_data$shift_num[clean_data$shift == "PM"] <- 1
-
+clean_data
 clean_data <- select(clean_data, latitude:shift, shift_num, everything())
 
 clean_data
