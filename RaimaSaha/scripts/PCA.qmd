@@ -150,9 +150,108 @@ autoplot(pca, scaled_data, color = "primary_fur_color_num") +
 Better understanding of the linear transformation of the features
 
 ```{r}
-
+biplot(pca)
 ```
 
-```{r}
+Plotting the PCA
 
+```{r}
+plot(pca, type = "bar")
+plot(pca, type = "lines")
+```
+
+3D PCA plot
+
+```{r}
+pca
+components <- pca[["x"]]
+components <- data.frame(components)
+components$PC3 <- -components$PC3
+components$PC2 <- -components$PC2
+components = cbind(components, temp_data$primary_fur_color)
+
+total_explained_variance_ratio <- summary(pca)[["importance"]]["Proportion of Variance",]
+total_explained_variance_ratio <- 100 * sum(total_explained_variance_ratio)
+total_explained_variance_ratio
+
+fig <- plot_ly(components, x = ~PC1, y = ~PC2, z = ~PC3, color = ~temp_data$primary_fur_color, colors = c('black','brown','gray') ) |>
+  add_markers(size = 12)
+  
+fig <- fig |>
+  layout(
+    title = cat("Total Explained Variance = ", total_explained_variance_ratio),
+    scene = list(bgcolor = "#e5ecf6")
+)
+
+fig
+```
+
+Comparing each PC t each other
+
+```{r}
+components <- pca[["x"]]
+components <- data.frame(components)
+components <- cbind(components, temp_data$primary_fur_color)
+# components$PC3 <- -components$PC3
+components$PC2 <- -components$PC2
+
+axis = list(showline=FALSE,
+            zeroline=FALSE,
+            gridcolor='#ffff',
+            ticklen=4,
+            titlefont=list(size=13))
+
+fig <- components |>
+  plot_ly()  |>
+  add_trace(
+    type = 'splom',
+    dimensions = list(
+      list(label=paste('PC 1 (',toString(round(explained_variance_ratio[1],1)),'%)',sep = ''), values=~PC1),
+      list(label=paste('PC 2 (',toString(round(explained_variance_ratio[2],1)),'%)',sep = ''), values=~PC2),
+      list(label=paste('PC 3 (',toString(round(explained_variance_ratio[3],1)),'%)',sep = ''), values=~PC3),
+      list(label=paste('PC 4 (',toString(round(explained_variance_ratio[4],1)),'%)',sep = ''), values=~PC4),
+      list(label=paste('PC 5 (',toString(round(explained_variance_ratio[5],1)),'%)',sep = ''), values=~PC5)#,
+      # list(label=paste('PC 6 (',toString(round(explained_variance_ratio[6],1)),'%)',sep = ''), values=~PC6),
+      # list(label=paste('PC 7 (',toString(round(explained_variance_ratio[7],1)),'%)',sep = ''), values=~PC7),
+      # list(label=paste('PC 8 (',toString(round(explained_variance_ratio[8],1)),'%)',sep = ''), values=~PC8)
+    ),
+    color = ~temp_data$primary_fur_color, colors = c('black','brown','gray')
+  ) %>%
+  style(diagonal = list(visible = FALSE)) %>%
+  layout(
+    legend=list(title=list(text='color')),
+    hovermode='closest',
+    dragmode= 'select',
+    plot_bgcolor='rgba(240,240,240, 0.95)',
+    xaxis=list(domain=NULL, showline=F, zeroline=F, gridcolor='#ffff', ticklen=4),
+    yaxis=list(domain=NULL, showline=F, zeroline=F, gridcolor='#ffff', ticklen=4),
+    xaxis2=axis,
+    xaxis3=axis,
+    xaxis4=axis,
+    yaxis2=axis,
+    yaxis3=axis,
+    yaxis4=axis
+  )
+
+fig
+```
+
+Visualizing top tow pricipal compnents in 2D
+
+```{r}
+fig <- plot_ly(components, x = ~PC1, y = ~PC2, color = ~temp_data$primary_fur_color, colors = c("black", "brown", "gray"), type = "scatter", mode = "markers") |>
+  layout(
+    legend = list(title = list(text='primary fur color')),
+    plot_bgcolor = "#e5ecf6",
+    xaxis = list(
+      title = "PC1",
+      zerolinecolor = "#ffff",
+      zerolinewidth = 2,
+      gridcolor = "#ffff"),
+    yaxis = list(
+      title = "PC2",
+      zerolinecolor = "#ffff",
+      zerolinewidth = 2,
+      gridcolor = "#ffff"))
+  fig
 ```
