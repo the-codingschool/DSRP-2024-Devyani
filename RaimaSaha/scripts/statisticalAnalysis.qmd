@@ -9,6 +9,7 @@ if (!require("janitor")) install.packages("janitor")
 if (!require("ggplot2")) install.packages("ggplot2")
 if (!require("tidyr")) install.packages("tidyr") 
 if (!require("stringr")) install.packages("stringr")
+if (!require("corrplot")) install.packages("corrplot")
 
 # Load necessary libraries
 library(tidyr) 
@@ -16,6 +17,7 @@ library(tidyverse)
 library(dplyr) 
 library(ggplot2) 
 library(stringr)
+library(corrplot)
 
 # Loading in data
 getwd()
@@ -33,6 +35,8 @@ Null hypothesis: There is no significant relationship or correlation between var
 Alternative hypothesis: There is a significant relationship or correlation between variable \_\_\_\_\_\_ and human_interaction.
 
 Setting significance level at 0.05 – if p-value is less than 0.05, then there is a correlation between \_\_\_\_\_\_\_\_ and human_interaction; otherwise, there isn't.
+
+# Hectare and Human Interaction
 
 Conducting chi-squared analysis between hectare and human interaction
 
@@ -56,21 +60,88 @@ residuals <- chisq_results$residuals
 residuals
 ```
 
-**FIX THIS!!!** Too few data points per each value occurrence is causing chi-squared test to be faulty and not produce a p-value. Creating a new version of the hectare column where it will only grouped by numbers. For example, entries that correspond with 42A-42C will be grouped under 42.
+## Hectare_num
+
+Too few data points per each value occurrence is causing chi-squared test to be faulty and not produce a p-value. Creating a new version of the hectare column where it will only grouped by numbers. For example, entries that correspond with 42A-42C will be grouped under 42.
 
 ```{r}
-# hectare_group_data <- gsub(c("A", "B", "C", "D", "E", "F", "G", "H", "I"),"", as.character(clean_data$hectare))
-# hectare_group_data <- gsub("B","", as.character(clean_data$hectare))
-# hectare_group_data <- gsub("C","", as.character(clean_data$hectare))
-# hectare_group_data <- gsub("D","", as.character(clean_data$hectare))
-# hectare_group_data <- gsub("E","", as.character(clean_data$hectare))
-# hectare_group_data <- gsub("F","", as.character(clean_data$hectare))
-# hectare_group_data <- gsub("G","", as.character(clean_data$hectare))
-# hectare_group_data <- gsub("H","", as.character(clean_data$hectare))
-# hectare_group_data <- gsub("I","", as.character(clean_data$hectare))
-clean_data <- str_replace_all(hectare, c("A", "B", "C", "D", "E", "F", "G", "H", "I"), "")
+clean_data
+hectare_group_data <- separate(clean_data, hectare, c("hectare_num", "hectare_letter"), sep = 2)
 hectare_group_data
 ```
+
+Conduction chi-squared analysis between hectare_num and human interaction
+
+```{r}
+# creating a contingency table
+contingency_table <- table(hectare_group_data$hectare_num, hectare_group_data$human_interaction)
+
+# performing chi-squared test
+chisq_results <- chisq.test(contingency_table)
+```
+
+Extracting results
+
+```{r}
+# extracting p-value
+p_val <- chisq_results$p.value
+p_val
+
+# extracting residuals
+residuals <- chisq_results$residuals
+residuals
+```
+
+1.647426e-11 \< 0.05 ∴ there is a statistically significant association between hectare_num and human interaction.
+
+Plotting correlogram
+
+```{r}
+corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Hectare and Human Interaction", mar=c(0,0,1,0))
+```
+
+## Hectare_tens
+
+Separating hectare_num column into just tens place to see if chi-squared test can be more precise
+
+```{r}
+clean_data
+hectare_group_data
+hectare_tens_data <- separate(hectare_group_data, hectare_num, c("hectare_tens", "hectare_ones"), sep = 1)
+hectare_tens_data
+```
+
+Conducting chi-squared analysis between hectare_tens and human interaction
+
+```{r}
+# creating a contingency table
+contingency_table <- table(hectare_tens_data$hectare_tens, hectare_tens_data$human_interaction)
+
+# performing chi-squared test
+chisq_results <- chisq.test(contingency_table)
+```
+
+Extracting results
+
+```{r}
+# extracting p-value
+p_val <- chisq_results$p.value
+p_val
+
+# extracting residuals
+residuals <- chisq_results$residuals
+residuals
+```
+
+3.649006e-16 \< 0.05 ∴ there is a statistically significant association between hectare_tens and human interaction.
+
+Plotting correlation plot
+
+```{r}
+corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Hectare Tens and Human Interaction", mar=c(0,0,1,0))
+```
+
+# Shift and Human interaction
 
 Conducting chi-squared analysis between shift and human interaction
 
@@ -96,6 +167,14 @@ residuals
 
 0.005426958 \< 0.05 ∴ there is statistically significant association between shift and human interaction.
 
+Correlogram
+
+```{r}
+corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Shift and Human Interaction", mar=c(0,0,1,0))
+```
+
+# Location and Human Interaction
+
 Conducting chi-squared analysis between location and human interaction
 
 ```{r}
@@ -120,6 +199,14 @@ residuals
 
 0.008341746 \< 0.05 ∴ there is a statistically significant association between ground location and human interaction.
 
+Correlogram
+
+```{r}
+corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Location and Human Interaction", mar=c(0,0,1,0))
+```
+
+# Primary fur color and Human interaction
+
 Conducting chi-squared analysis between primary fur color and human interaction
 
 ```{r}
@@ -142,3 +229,9 @@ residuals
 ```
 
 6.31357e-06 \< 0.05 ∴ there is a statistically significant association between primary fur color and human interaction.
+
+Correlogram
+
+```{r}
+corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Primary Fur Color and Human Interaction", mar=c(0,0,1,0))
+```
