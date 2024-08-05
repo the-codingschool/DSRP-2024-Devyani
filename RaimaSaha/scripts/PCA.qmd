@@ -50,9 +50,9 @@ Conducting PCA
 ```{r}
 # Standardize the data for running:foraging
 temp_data <- clean_data |>
-  select(latitude, longitude, primary_fur_color_num) |>
+  select(latitude, longitude, primary_fur_color_num, shift_num, location_num) |>
   drop_na()
-scaled_data <- scale(temp_data[, 1:2])
+scaled_data <- scale(temp_data[, ])
 
 # Perform PCA
 pca <- prcomp(scaled_data, center = TRUE, scale. = TRUE)
@@ -131,12 +131,28 @@ for (i in 1:length(eigenvalues)) {
 
 ```{r}
 # Visualize the top 2 components of the data
-pc_1 <- pca$x[, 1]
-pc_2 <- pca$x[, 2]
+# pc_1 <- pca$x[, 1]
+# pc_2 <- pca$x[, 2]
+# 
+# qplot(pc_1, pc_2, color = as.factor(data$Class)) +
+#   xlab('Principal Component 1') +
+#   ylab('Principal Component 2') +
+#   ggtitle('PCA of Artificial Data') +
+#   theme_minimal()
 
-qplot(pc_1, pc_2, color = as.factor(data$Class)) +
+autoplot(pca, scaled_data, color = "primary_fur_color_num") +
   xlab('Principal Component 1') +
   ylab('Principal Component 2') +
-  ggtitle('PCA of Artificial Data') +
+  ggtitle('PCA of Data') +
   theme_minimal()
+```
+
+Better understanding of the linear transformation of the features
+
+```{r}
+
+```
+
+```{r}
+
 ```
