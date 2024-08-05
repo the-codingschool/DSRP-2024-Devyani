@@ -211,7 +211,7 @@ fig <- fig |>
 fig
 ```
 
-Comparing each PC t each other
+Comparing each PC to each other
 
 ```{r}
 components <- pca[["x"]]
@@ -261,10 +261,10 @@ fig <- components |>
 fig
 ```
 
-Visualizing top tow pricipal compnents in 2D
+Visualizing top row principal components in 2D
 
 ```{r}
-fig <- plot_ly(components, x = ~PC1, y = ~PC2, color = ~temp_data$primary_fur_color, colors = c("black", "brown", "gray"), type = "scatter", mode = "markers") |>
+plot_ly(components, x = ~PC1, y = ~PC2, color = ~temp_data$primary_fur_color, colors = c("black", "brown", "gray"), type = "scatter", mode = "markers") |>
   layout(
     legend = list(title = list(text='primary fur color')),
     plot_bgcolor = "#e5ecf6",
@@ -278,7 +278,7 @@ fig <- plot_ly(components, x = ~PC1, y = ~PC2, color = ~temp_data$primary_fur_co
       zerolinecolor = "#ffff",
       zerolinewidth = 2,
       gridcolor = "#ffff"))
-  fig
+
 ```
 
 Findings:

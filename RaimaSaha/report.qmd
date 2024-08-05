@@ -8,6 +8,8 @@
 
 # Results
 
+## Principle Component Analysis
+
 ```{r}
 #! echo: false, #! message: false
 # Install necessary packages if not already installed
@@ -130,6 +132,34 @@ scree_plot <- ggplot(data.frame(PC = 1:length(eigenvalues), Eigenvalue = eigenva
   theme_minimal()
 
 print(scree_plot)
+```
+
+Figure 4 is a biplot of the PCA. Latitude and longitude appear to be closely correlated. The near 90 degree angle by all variables show that these variables do not appear to be correlated.
+
+```{r}
+biplot(pca)
+```
+
+Figure 5 shows a 2D representation of principal component 1 and principal component 2.
+
+```{r}
+plot_ly(components, x = ~PC1, y = ~PC2, color = ~temp_data$primary_fur_color, colors = c("black", "brown", "gray"), type = "scatter", mode = "markers") |>
+  layout(
+    title = list(
+      title = "PC 1 vs. PC 2"),
+    plot_bgcolor = "#e5ecf6",
+    xaxis = list(
+      title = "PC1",
+      zerolinecolor = "#ffff",
+      zerolinewidth = 2,
+      gridcolor = "#ffff"),
+    yaxis = list(
+      title = "PC2",
+      zerolinecolor = "#ffff",
+      zerolinewidth = 2,
+      gridcolor = "#ffff"),
+    legend = list(
+      title ='Primary Fur Color'))
 ```
 
 # Discussion
