@@ -255,3 +255,9 @@ fig <- plot_ly(components, x = ~PC1, y = ~PC2, color = ~temp_data$primary_fur_co
       gridcolor = "#ffff"))
   fig
 ```
+
+Findings:
+
+-   latitude and longitude accounted for the most variance
+-   explained variance ratios –\> use PC 1-4
+-   eigenvalues –\> use PC 1-3
