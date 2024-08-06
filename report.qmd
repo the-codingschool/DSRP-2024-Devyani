@@ -13,8 +13,7 @@ editor: visual
 
 ## Principle Component Analysis
 
-```{r}
-#! echo: false, #! message: false
+```{r echo: false, message: false}
 # Install necessary packages if not already installed
 if (!require("dplyr")) install.packages("dplyr")
 if (!require("janitor")) install.packages("janitor")
@@ -60,9 +59,6 @@ getwd()
 filename <- "RaimaSaha/squirrel_data_clean.csv"
 
 clean_data <- read.csv(filename)  
-
-head(clean_data)
-clean_data
 ```
 
 Table 1 displays a covariance matrix yielded after conducting PCA on the variables latitude, longitude, primary_fur_color_num, shift_num, and location_num.
@@ -80,6 +76,8 @@ pca <- prcomp(scaled_data, center = TRUE, scale. = TRUE)
 # Get covariance matrix and eigenvalues
 cov_matrix <- cov(scaled_data)
 cov_matrix
+eigenvalues <- pca$sdev^2
+explained_variance_ratio <- eigenvalues / sum(eigenvalues)
 ```
 
 Positive values indicate a positive relationship between certain principle components, while negative values indicate a negative relationship between certain principle components.
@@ -234,7 +232,7 @@ residuals <- chisq_results$residuals
 
 0.005426958 is less than 0.05, thereby indicating a significant correlation between shift and human interaction.
 
-Figure 7 below
+Figure 7 below displays the correlation between shift and human interaction.
 
 ```{r}
 corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Shift and Human Interaction", mar=c(0,0,1,0))
