@@ -5,7 +5,7 @@ format: html
 editor: visual
 ---
 
-## Abstract
+# Abstract
 
 # Background, Research Question, and Hypotheses
 
@@ -31,6 +31,8 @@ if (!require("gridExtra")) install.packages("gridExtra")
 if (!require("readr")) install.packages("readr")
 if (!require("ggfortify")) install.packages("ggfortify")
 if (!require("corrplot")) install.packages("corrplot")
+if (!require("ggbiplot")) install.packages("ggbiplot")
+if (!require("ggrepel")) install.packages("ggrepel")
 # if (!require("stats")) install.packages("stats")
 
 # Load necessary libraries
@@ -49,6 +51,8 @@ library(gridExtra)
 library(readr)
 library(ggfortify)
 library(corrplot)
+library(ggbiplot)
+library(ggrepel)
 # library(stats)
 
 getwd()
@@ -66,7 +70,7 @@ Table 1 displays a covariance matrix yielded after conducting PCA on the variabl
 ```{r}
 # Standardize the data for running:foraging
 temp_data <- clean_data |>
-  select(latitude, longitude, primary_fur_color_num, shift_num, location_num) |>
+  select(latitude, longitude, primary_fur_color_num, shift_num, location_num, human_interaction_num) |>
   drop_na()
 scaled_data <- scale(temp_data[, ])
 
@@ -137,10 +141,10 @@ scree_plot <- ggplot(data.frame(PC = 1:length(eigenvalues), Eigenvalue = eigenva
 print(scree_plot)
 ```
 
-Figure 4 is a biplot of the PCA. Latitude and longitude appear to be closely correlated. The near 90 degree angle by all variables show that these variables do not appear to be correlated.
+Figure 4 is a biplot of the PCA. Latitude and longitude appear to be closely correlated. The near 90 degree angle by shift, location, and latitude and longitude vectors show that these variables are not closely correlated.
 
 ```{r}
-biplot(pca)
+ggbiplot(pca, obs.scale = 1, var.scale = 1, ellipse = TRUE, circle = TRUE) + scale_x_discrete(labels=c("shift_num"="Shift", "primary_fur_color_num"="Primary Fur Color")) 
 ```
 
 Figure 5 shows a 2D representation of principal component 1 and principal component 2.
@@ -158,7 +162,7 @@ axis = list(showline=FALSE,
             ticklen=4,
             titlefont=list(size=13))
 
-plot_ly(components, x = ~PC1, y = ~PC2, color = ~temp_data$primary_fur_color, colors = c("black", "brown", "gray"), type = "scatter", mode = "markers") |>
+plot_ly(components, x = ~PC1, y = ~PC2, color = ~temp_data$primary_fur_color_num, colors = c("black", "brown", "gray"), type = "scatter", mode = "markers") |>
   layout(
     title = list(
       title = "PC 1 vs. PC 2"),
@@ -175,6 +179,65 @@ plot_ly(components, x = ~PC1, y = ~PC2, color = ~temp_data$primary_fur_color, co
       gridcolor = "#ffff"),
     legend = list(
       title ="Primary Fur Color"))
+```
+
+## Chi-Squared Testing
+
+After conducting a chi-squared test between hectare and human interaction, shift and human interaction, location and human interaction, and primary fur color and human interaction, it was found that all these variables had a p-value of less than 0.05, the set significance level, indicating that there is a significant correlation between of the two variable and to reject the null hypothesis.
+
+### Hectare and Human Interaction
+
+```{r}
+# Separating Hectare information into tens, ones, and letter
+hectare_group_data <- separate(clean_data, hectare, c("hectare_num", "hectare_letter"), sep = 2)
+hectare_tens_data <- separate(hectare_group_data, hectare_num, c("hectare_tens", "hectare_ones"), sep = 1)
+
+# creating a contingency table
+contingency_table <- table(hectare_tens_data$hectare_tens, hectare_tens_data$human_interaction)
+
+# performing chi-squared test
+chisq_results <- chisq.test(contingency_table)
+
+# extracting p-value
+p_val <- chisq_results$p.value
+p_val
+
+# extracting residuals
+residuals <- chisq_results$residuals
+
+```
+
+3.649006e-16 is less than the set significance level of 0.05, meaning that there is a significant correlation between Hectare and Human Interaction.
+
+Figure 6 below displays a correlogram showing that squirrels with a primary fur color of cinnamon are more likely to approach human, and that gray squirrels tend to have slight inclination to not approach humans.
+
+```{r}
+corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Hectare and Human Interaction", mar=c(0,0,1,0))
+```
+
+## Shift and Human Interaction
+
+```{r}
+# creating a contingency table
+contingency_table <- table(clean_data$shift, clean_data$human_interaction)
+
+# performing chi-squared test
+chisq_results <- chisq.test(contingency_table)
+
+# extracting p-value
+p_val <- chisq_results$p.value
+p_val
+
+# extracting residuals
+residuals <- chisq_results$residuals
+```
+
+0.005426958 is less than 0.05, thereby indicating a significant correlation between shift and human interaction.
+
+Figure 7 below
+
+```{r}
+corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Shift and Human Interaction", mar=c(0,0,1,0))
 ```
 
 # Discussion

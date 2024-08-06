@@ -58,7 +58,7 @@ Conducting PCA
 ```{r}
 # Standardize the data for running:foraging
 temp_data <- clean_data |>
-  select(latitude, longitude, primary_fur_color_num, shift_num, location_num) |>
+  select(latitude, longitude, primary_fur_color_num, shift_num, location_num, human_interaction_num) |>
   drop_na()
 scaled_data <- scale(temp_data[, ])
 
