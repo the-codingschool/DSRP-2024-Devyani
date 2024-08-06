@@ -1,8 +1,11 @@
-# Title
+---
+title: "Title"
+author: "Raima Saha"
+format: html
+editor: visual
+---
 
-## By Raima Saha
-
-# Abstract
+## Abstract
 
 # Background, Research Question, and Hypotheses
 
@@ -143,6 +146,18 @@ biplot(pca)
 Figure 5 shows a 2D representation of principal component 1 and principal component 2.
 
 ```{r}
+components <- pca[["x"]]
+components <- data.frame(components)
+components <- cbind(components, temp_data$primary_fur_color)
+# components$PC3 <- -components$PC3
+components$PC2 <- -components$PC2
+
+axis = list(showline=FALSE,
+            zeroline=FALSE,
+            gridcolor='#ffff',
+            ticklen=4,
+            titlefont=list(size=13))
+
 plot_ly(components, x = ~PC1, y = ~PC2, color = ~temp_data$primary_fur_color, colors = c("black", "brown", "gray"), type = "scatter", mode = "markers") |>
   layout(
     title = list(
@@ -159,7 +174,7 @@ plot_ly(components, x = ~PC1, y = ~PC2, color = ~temp_data$primary_fur_color, co
       zerolinewidth = 2,
       gridcolor = "#ffff"),
     legend = list(
-      title ='Primary Fur Color'))
+      title ="Primary Fur Color"))
 ```
 
 # Discussion
