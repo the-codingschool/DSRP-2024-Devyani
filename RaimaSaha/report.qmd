@@ -14,9 +14,9 @@
 #! echo: false, #! message: false
 # Install necessary packages if not already installed
 if (!require("dplyr")) install.packages("dplyr")
-# if (!require("janitor")) install.packages("janitor")
+if (!require("janitor")) install.packages("janitor")
 # if (!require("ggplot2")) install.packages("ggplot2")
-# if (!require("tidyr")) install.packages("tidyr")
+if (!require("tidyr")) install.packages("tidyr")
 # if (!require("sf")) install.packages("sf") 
 # if (!require("mapview")) install.packages("mapview")
 # if (!require("maps")) install.packages("maps")
@@ -32,9 +32,9 @@ if (!require("corrplot")) install.packages("corrplot")
 
 # Load necessary libraries
 library(dplyr)
-# library(janitor)
+ library(janitor)
 # library(ggplot2)
-# library(tidyr)
+library(tidyr)
 # library(sf)
 # library(mapview)
 # library(maps)
