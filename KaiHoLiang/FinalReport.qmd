@@ -1,0 +1,111 @@
+---
+title: "Exploring Squirrel Activity in Central Park: Analysis of Running Behavior and Associated Factors"
+author: "Kai Ho Liang"
+format: html
+editor: visual
+---
+
+```{r}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(pROC)
+library(ggrepel)
+```
+
+## Abstract
+
+Understanding squirrel behavior is essential for urban wildlife management and conservation. This study investigates how age, fur color, and other activities relate to running behavior in squirrels using data from the Central Park Squirrel Census. Various statistical analyses, including chi-squared tests, logistic regression, and t-tests, were conducted. The findings show no significant relationship between running activity and age or fur color, suggesting that these factors do not influence running behavior. These insights contribute to better understanding of urban squirrel dynamics and inform conservation strategies.
+
+## Background
+
+Urban parks like Central Park serve as crucial habitats for wildlife, with squirrels being key indicators of ecosystem health. Understanding their behavior helps in managing urban ecosystems effectively. This study aims to investigate how age, fur color, and other activities influence running behavior in squirrels. The research question is: How does age, fur color, and other activities relate to running behavior in squirrels? The hypothesis is that age and fur color significantly influence the likelihood of a squirrel running.
+
+## Results
+
+```{# Load cleaned data}
+cleaned_squirrel_data <- read_csv("cleaned_squirrel_data.csv")
+cleaned_squirrel_data_filtered <- cleaned_squirrel_data %>% filter(Age != "?" & Age != "Unknown")
+
+# Plot distribution of Age (Pie Chart)
+age_distribution <- cleaned_squirrel_data_filtered %>%
+  count(Age) %>%
+  mutate(Percentage = n / sum(n) * 100)
+
+ggplot(age_distribution, aes(x = "", y = Percentage, fill = Age)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar(theta = "y") +
+  theme_void() +
+  labs(title = "Distribution of Age", fill = "Age Group") +
+  scale_fill_manual(values = c("Adult" = "#1f77b4", "Juvenile" = "#ff7f0e")) +
+  geom_text(aes(label = paste0(round(Percentage, 1), "%")), position = position_stack(vjust = 0.5))
+
+# Plot activity levels (Running) by Age (Stacked Bar Chart)
+age_running_distribution <- cleaned_squirrel_data_filtered %>%
+  count(Age, Running) %>%
+  group_by(Age) %>%
+  mutate(Percentage = n / sum(n) * 100)
+
+ggplot(age_running_distribution, aes(x = Age, y = Percentage, fill = Running)) +
+  geom_bar(stat = "identity", position = "fill") +
+  theme_minimal() +
+  labs(title = "Running Activity by Age", x = "Age", y = "Percentage", fill = "Running Activity") +
+  scale_fill_manual(values = c("FALSE" = "#d62728", "TRUE" = "#1f77b4")) +
+  geom_text(aes(label = paste0(round(Percentage, 1), "%")), position = position_fill(vjust = 0.5))
+
+# Plot activity levels (Running) by Primary Fur Color (Stacked Bar Chart)
+fur_color_running_distribution <- cleaned_squirrel_data_filtered %>%
+  count(`Primary Fur Color`, Running) %>%
+  group_by(`Primary Fur Color`) %>%
+  mutate(Percentage = n / sum(n) * 100)
+
+ggplot(fur_color_running_distribution, aes(x = `Primary Fur Color`, y = Percentage, fill = Running)) +
+  geom_bar(stat = "identity", position = "fill") +
+  theme_minimal() +
+  labs(title = "Running Activity by Primary Fur Color", x = "Primary Fur Color", y = "Percentage", fill = "Running Activity") +
+  scale_fill_manual(values = c("FALSE" = "#d62728", "TRUE" = "#1f77b4")) +
+  geom_text(aes(label = paste0(round(Percentage, 1), "%")), position = position_fill(vjust = 0.5))
+
+# Scatter plot with jitter and transparency
+ggplot(cleaned_squirrel_data_filtered, aes(x = as.numeric(Running), y = as.numeric(Climbing))) +
+  geom_jitter(alpha = 0.5) +
+  theme_minimal() +
+  labs(title = "Scatter Plot of Running vs Climbing", x = "Running (0 = No, 1 = Yes)", y = "Climbing (0 = No, 1 = Yes)") +
+  scale_x_continuous(breaks = c(0, 1), labels = c("No", "Yes")) +
+  scale_y_continuous(breaks = c(0, 1), labels = c("No", "Yes"))
+
+# Linear regression and plot
+lm_model <- lm(`Hectare Squirrel Number` ~ Running, data = cleaned_squirrel_data_filtered)
+
+# Summary of the linear regression model
+summary(lm_model)
+
+# Plotting the linear regression line with jittered points
+ggplot(cleaned_squirrel_data_filtered, aes(x = as.factor(Running), y = `Hectare Squirrel Number`)) +
+  geom_jitter(width = 0.1, height = 0, alpha = 0.5, size = 2, aes(color = Running)) +
+  geom_smooth(method = "lm", col = "red", se = TRUE) +  
+  labs(title = "Linear Regression of Hectare Squirrel Number on Running Activity",
+       y = "Hectare Squirrel Number",
+       x = "Running Activity",
+       fill = "Running Activity") +
+  theme_minimal() +
+  scale_x_discrete(labels = c("No", "Yes")) +
+  scale_color_manual(values = c("FALSE" = "#d62728", "TRUE" = "#1f77b4"), labels = c("No", "Yes")) +
+  theme(legend.position = "none")
+
+```
+
+# Discussion
+
+The analysis shows no significant relationship between running activity and factors like age and fur color. These results suggest that other variables not included in this study might influence running behavior. These findings are important for urban wildlife management as they indicate that age and fur color alone are not good predictors of running behavior in squirrels.
+
+Conclusions from this study support the need for further research into additional factors that may influence squirrel activity. Understanding these behaviors can help in designing better conservation strategies and improving urban ecosystem health.
+
+# Code and Data Availability
+
+The code and data for this analysis are available on my GitHub repository: \[GitHub Link\] The Central Park Squirrel Census dataset is publicly available \[Data Source Link\].
+
+# Acknowledgements
+
+I would like to acknowledge Devyani for her guidance and support throughout this project. Also thanks to Wanjiru Randolph for her feedback and assistance.
