@@ -142,7 +142,11 @@ print(scree_plot)
 Figure 4 is a biplot of the PCA. Latitude and longitude appear to be closely correlated. The near 90 degree angle by shift, location, and latitude and longitude vectors show that these variables are not closely correlated.
 
 ```{r}
-ggbiplot(pca, obs.scale = 1, var.scale = 1, ellipse = TRUE, circle = TRUE) + scale_x_discrete(labels=c("shift_num"="Shift", "primary_fur_color_num"="Primary Fur Color")) 
+ggbiplot(pca, obs.scale = 1, var.scale = 1, ellipse = TRUE, circle = TRUE) + scale_x_discrete(labels=c("shift_num"="Shift", "primary_fur_color_num"="Primary Fur Color")) + ggtitle("PC1 vs PC2") + labs(color = "Shift") + theme_minimal()
+```
+
+```{r}
+ggplot(pca, aes(x = PC1, y = PC2)) + geom_point(aes(col = "`Primary Fur Color`"), size = 1) + geom_text_repel(aes(label = `Shift.num`), size = 3) + labs(title = "PC1 vs PC2", x = "PC1 (33.0%)", y = "PC2 (14.4%)")
 ```
 
 Figure 5 shows a 2D representation of principal component 1 and principal component 2.
