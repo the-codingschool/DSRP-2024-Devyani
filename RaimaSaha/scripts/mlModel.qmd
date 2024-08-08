@@ -63,7 +63,7 @@ test_data <- subset(data, split == FALSE)
 Fitting model to training data based on k = 5
 
 ```{r}
-knn_model <- knn(train = train_data[,c("latitude", "longitude", "location_num", "shift_num", "primary_fur_color_num")], test = test_data[, c("latitude", "longitude", "location_num", "shift_num", "primary_fur_color_num")], cl = train_data$human_interaction, k = 5)
+knn_model <- knn(train = train_data[,c("latitude", "longitude", "location_num", "shift_num", "primary_fur_color_num")], test = test_data[, c("latitude", "longitude", "location_num", "shift_num", "primary_fur_color_num")], cl = train_data$human_interaction, k = 4)
 ```
 
 Testing model
@@ -140,10 +140,5 @@ fig <- plot_ly(
   layout(title = "Accuracy based on values of k", plot_bgcolor = "#e5ecf6",
          xaxis = list(title = "Values of k"), yaxis = list(title = "Accuracy levels"))
   
-fig
-```
-
-```{r}
-fig <- plotly(z = ~primary_fur_color_num,  colorscale='RdBu', type = "contour")
 fig
 ```

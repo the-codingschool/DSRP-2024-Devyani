@@ -97,7 +97,7 @@ residuals
 Plotting correlogram
 
 ```{r}
-corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Hectare and Human Interaction", mar=c(0,0,1,0))
+corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Hectare and Human Interaction", mar=c(0,0,1,0), cl.ratio = 0.7)
 ```
 
 ## Hectare_tens
@@ -138,7 +138,7 @@ residuals
 Plotting correlation plot
 
 ```{r}
-corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Hectare Tens and Human Interaction", mar=c(0,0,1,0))
+corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Hectare (tens) and Human Interaction", mar=c(0,0,1,0), cl.ratio = 0.7)
 ```
 
 # Shift and Human interaction
@@ -170,7 +170,7 @@ residuals
 Correlogram
 
 ```{r}
-corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Shift and Human Interaction", mar=c(0,0,1,0))
+corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Shift and Human Interaction", mar=c(0,0,1,0), cl.ratio = 0.3)
 ```
 
 # Location and Human Interaction
@@ -202,7 +202,7 @@ residuals
 Correlogram
 
 ```{r}
-corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Location and Human Interaction", mar=c(0,0,1,0))
+corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Location and Human Interaction", mar=c(0,0,1,0), cl.ratio = 0.3)
 ```
 
 # Primary fur color and Human interaction
@@ -233,5 +233,5 @@ residuals
 Correlogram
 
 ```{r}
-corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Primary Fur Color and Human Interaction", mar=c(0,0,1,0))
+corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Primary Fur Color and Human Interaction", mar=c(0,0,2,0), cl.ratio = 0.4) 
 ```
