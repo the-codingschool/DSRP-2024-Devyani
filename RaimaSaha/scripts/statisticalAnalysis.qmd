@@ -220,6 +220,7 @@ chisq_results <- chisq.test(contingency_table)
 Extracting results
 
 ```{r}
+# extracting p-value
 p_val <- chisq_results$p.value
 p_val
 
