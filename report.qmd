@@ -1,11 +1,11 @@
 ---
-title: "Title"
+title: "Various factors found significant to predicting the Eastern gray squirrel in Central Park, NYC interaction with humans"
 author: "Raima Saha"
 format: html
 editor: visual
 ---
 
-# Abstract
+## Abstract
 
 # Background, Research Question, and Hypotheses
 
