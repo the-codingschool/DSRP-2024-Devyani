@@ -5,17 +5,18 @@ format: html
 editor: visual
 ---
 
-## Abstract
+# Abstract
 
 # Background, Research Question, and Hypotheses
 
 # Results
 
-## Principle Component Analysis
+## Principle Component Analysis (PCA)
 
 ```{r}
-#! echo: false
-#! message: false
+#| echo: false
+#| message: false
+#| include: false
 # Install necessary packages if not already installed
 if (!require("dplyr")) install.packages("dplyr")
 if (!require("janitor")) install.packages("janitor")
@@ -66,6 +67,8 @@ clean_data <- read.csv(filename)
 Table 1 displays a covariance matrix yielded after conducting PCA on the variables latitude, longitude, primary_fur_color_num, shift_num, and location_num.
 
 ```{r}
+#| echo: false
+#| message: false
 # Standardize the data for running:foraging
 temp_data <- clean_data |>
   select(latitude, longitude, primary_fur_color_num, shift_num, location_num, human_interaction_num) |>
@@ -87,12 +90,16 @@ Positive values indicate a positive relationship between certain principle compo
 Figure 1 returns a correlogram between the principle components in the covariance matrix.
 
 ```{r}
+#| echo: false
+#| message: false
 corrplot(cov_matrix, method = "color")
 ```
 
 Table 2 shows the total explained variance. It is said that
 
 ```{r}
+#| echo: false
+#| message: false
 # Explained Variance Ratio
 total_explained_variances <- cumsum(explained_variance_ratio)
 
@@ -115,6 +122,8 @@ df
 Figure 2 depicts the explained variance ratio and their corresponding values of how much variance they explain.
 
 ```{r}
+#| echo: false
+#| message: false
 variance_df <- data.frame(PC = 1:length(explained_variance_ratio), Variance = explained_variance_ratio, Cumulative = total_explained_variances)
 variance_plot <- ggplot(variance_df, aes(x = PC)) +
   geom_bar(aes(y = Variance), stat = 'identity', alpha = 0.5, fill = 'blue') +
@@ -130,6 +139,8 @@ print(variance_plot)
 Figure 3 shows a Scree plot of all five principal components. It is consistent with the Explained Variance Ration in showing that 4 components is enough explain majority of the variance within the chosen variables.
 
 ```{r}
+#| echo: false
+#| message: false
 scree_plot <- ggplot(data.frame(PC = 1:length(eigenvalues), Eigenvalue = eigenvalues), aes(x = PC, y = Eigenvalue)) +
   geom_line() +
   geom_point() +
@@ -144,12 +155,16 @@ print(scree_plot)
 Figure 4 is a biplot of the PCA. Latitude and longitude appear to be closely correlated. The near 90 degree angle by shift, location, and latitude and longitude vectors show that these variables are not closely correlated.
 
 ```{r}
+#| echo: false
+#| message: false
 ggbiplot(pca, obs.scale = 1, var.scale = 1, ellipse = TRUE, circle = TRUE) + scale_x_discrete(labels=c("shift_num"="Shift", "primary_fur_color_num"="Primary Fur Color")) + ggtitle("PC1 vs PC2") + labs(color = "Shift") + theme_minimal()
 ```
 
 Figure 5 shows a 2D representation of principal component 1 and principal component 2.
 
 ```{r}
+#| echo: false
+#| message: false
 components <- pca[["x"]]
 components <- data.frame(components)
 components <- cbind(components, temp_data$primary_fur_color)
@@ -181,13 +196,103 @@ plot_ly(components, x = ~PC1, y = ~PC2, color = ~temp_data$primary_fur_color_num
       title ="Primary Fur Color"))
 ```
 
+Figure 6 shows the result of comparing each PC against each other. \*add insights
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+components <- pca[["x"]]
+components <- data.frame(components)
+components <- cbind(components, temp_data$primary_fur_color)
+# components$PC3 <- -components$PC3
+components$PC2 <- -components$PC2
+
+axis = list(showline=FALSE,
+            zeroline=FALSE,
+            gridcolor='#ffff',
+            ticklen=4,
+            titlefont=list(size=13))
+
+fig <- components |>
+  plot_ly()  |>
+  add_trace(
+    type = 'splom',
+    dimensions = list(
+      list(label=paste('PC 1 (',toString(round(explained_variance_ratio[1],1)),'%)',sep = ''), values=~PC1),
+      list(label=paste('PC 2 (',toString(round(explained_variance_ratio[2],1)),'%)',sep = ''), values=~PC2),
+      list(label=paste('PC 3 (',toString(round(explained_variance_ratio[3],1)),'%)',sep = ''), values=~PC3),
+      list(label=paste('PC 4 (',toString(round(explained_variance_ratio[4],1)),'%)',sep = ''), values=~PC4),
+      list(label=paste('PC 5 (',toString(round(explained_variance_ratio[5],1)),'%)',sep = ''), values=~PC5)#,
+      # list(label=paste('PC 6 (',toString(round(explained_variance_ratio[6],1)),'%)',sep = ''), values=~PC6),
+      # list(label=paste('PC 7 (',toString(round(explained_variance_ratio[7],1)),'%)',sep = ''), values=~PC7),
+      # list(label=paste('PC 8 (',toString(round(explained_variance_ratio[8],1)),'%)',sep = ''), values=~PC8)
+    ),
+    color = ~temp_data$primary_fur_color, colors = c('black','brown','gray')
+  ) %>%
+  style(diagonal = list(visible = FALSE)) %>%
+  layout(
+    legend=list(title=list(text='color')),
+    hovermode='closest',
+    dragmode= 'select',
+    plot_bgcolor='rgba(240,240,240, 0.95)',
+    xaxis=list(domain=NULL, showline=F, zeroline=F, gridcolor='#ffff', ticklen=4),
+    yaxis=list(domain=NULL, showline=F, zeroline=F, gridcolor='#ffff', ticklen=4),
+    xaxis2=axis,
+    xaxis3=axis,
+    xaxis4=axis,
+    yaxis2=axis,
+    yaxis3=axis,
+    yaxis4=axis
+  )
+
+fig
+```
+
+For fun, let's visualize the top 3 principal components in 3D (Figure 7). \*add insights and fix figure numbering
+
+```{r}
+#| echo: false
+#| message: false
+components <- pca[["x"]]
+components <- data.frame(components)
+components$PC3 <- -components$PC3
+components$PC2 <- -components$PC2
+components = cbind(components, temp_data$primary_fur_color)
+
+summary <- summary(pca)
+# summary
+
+# total_explained_variance_ratio <- summary(pca)[["importance"]]["Proportion of Variance",]
+total_explained_variance_ratio <- 0.6805
+total_explained_variance_ratio <- 100 * sum(total_explained_variance_ratio)
+
+fig <- plot_ly(components, x = ~PC1, y = ~PC2, z = ~PC3, color = ~temp_data$primary_fur_color, colors = c('black','brown','gray') ) |>
+  add_markers(size = 12)
+
+title <- "Total Explained Variance = 0.6805"
+  
+fig <- fig |>
+  layout(
+    title = title,
+    scene = list(bgcolor = "#e5ecf6")
+)
+
+fig
+```
+
 ## Chi-Squared Testing
 
 After conducting a chi-squared test between hectare and human interaction, shift and human interaction, location and human interaction, and primary fur color and human interaction, it was found that all these variables had a p-value of less than 0.05, the set significance level, indicating that there is a significant correlation between of the two variable and to reject the null hypothesis.
 
 ### Hectare and Human Interaction
 
+The p-value from the chi-squared test is
+
 ```{r}
+#| echo: false
+#| message: false
+
 # Separating Hectare information into tens, ones, and letter
 hectare_group_data <- separate(clean_data, hectare, c("hectare_num", "hectare_letter"), sep = 2)
 hectare_tens_data <- separate(hectare_group_data, hectare_num, c("hectare_tens", "hectare_ones"), sep = 1)
@@ -209,15 +314,23 @@ residuals <- chisq_results$residuals
 
 3.649006e-16 is less than the set significance level of 0.05, meaning that there is a significant correlation between Hectare and Human Interaction.
 
-Figure 6 below displays a correlogram showing that squirrels with a primary fur color of cinnamon are more likely to approach human, and that gray squirrels tend to have slight inclination to not approach humans.
+Figure 6 below displays a correlogram showing that squirrels with a primary fur color of cinnamon are more likely to approach human, and that gray squirrels tend to have slight inclination to not approach humans. \*add insights
 
 ```{r}
+#| echo: false
+#| message: false
+
 corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Hectare and Human Interaction", mar=c(0,0,1,0))
 ```
 
-## Shift and Human Interaction
+### Shift and Human Interaction
+
+The p-value from the chi-squared test is
 
 ```{r}
+#| echo: false
+#| message: false
+
 # creating a contingency table
 contingency_table <- table(clean_data$shift, clean_data$human_interaction)
 
@@ -234,16 +347,213 @@ residuals <- chisq_results$residuals
 
 0.005426958 is less than 0.05, thereby indicating a significant correlation between shift and human interaction.
 
-Figure 7 below displays the correlation between shift and human interaction.
+Figure 7 below displays the correlation between shift and human interaction. \*add insights
 
 ```{r}
+#| echo: false
+#| message: false
+
 corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Shift and Human Interaction", mar=c(0,0,1,0))
 ```
 
-## Primary Fur Color and Human Interaction
+### Location and Human Interaction
+
+The p-value from the chi-squared test is
+
+```{r}
+#| echo: false
+#| message: false
+
+# creating a contingency table
+contingency_table <- table(clean_data$location, clean_data$human_interaction)
+
+# performing chi-squared test
+chisq_results <- chisq.test(contingency_table)
+
+# extracting p-value
+p_val <- chisq_results$p.value
+p_val
+
+# extracting residuals
+residuals <- chisq_results$residuals
+```
+
+0.008341746 is less than 0.05, thereby indicating a significant correlation between location and human interaction.
+
+Figure 8 shows the correlation between location and human interaction. \*add insights
+
+```{r}
+#| echo: false
+#| message: false
+
+corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Location and Human Interaction", mar=c(0,0,1,0), cl.ratio = 0.3)
+```
+
+### Primary Fur Color and Human Interaction
+
+The p-value from the chi-squared test is
+
+```{r}
+#| echo: false
+#| message: false
+
+# creating a contingency table
+contingency_table <- table(clean_data$primary_fur_color, clean_data$human_interaction)
+
+# performing chi-squared test
+chisq_results <- chisq.test(contingency_table)
+
+# extracting p-value
+p_val <- chisq_results$p.value
+p_val
+
+# extracting residuals
+residuals <- chisq_results$residuals
+```
+
+6.31357e-06 is less than 0.05, meaning that there is a statistically significant association between primary fur color and human interaction.
+
+Figure 9 shows the correlation between primary fur color and human interaction. \*add insights
+
+```{r}
+#| echo: false
+#| message: false
+
+corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Primary Fur Color and Human Interaction", mar=c(0,0,2,0), cl.ratio = 0.4) 
+```
+
+## KNN Model
+
+This KNN Model will predict a squirrel's interaction with humans based on location, primary fur color, hectare, and shift (k = 5).
+
+```{r}
+#| echo: false
+#| message: false
+#| include: false
+
+# Install packages if necessary
+if (!require("ggplot2")) install.packages("ggplot2")
+if (!require("caTools")) install.packages("caTools")
+if (!require("readr")) install.packages("readr")
+if (!require("downloader")) install.packages("downloader")
+if (!require("FNN")) install.packages("FNN")
+if (!require("readxl")) install.packages("readxl")
+if (!require("plotly")) install.packages("plotly")
+if (!require("tidyverse")) install.packages("tidyverse")
+if (!require("tidymodels")) install.packages("tidymodels")
+
+# Load libraries
+library(ggplot2)
+library(caTools)
+library(readr)
+library(downloader)
+library(caTools)
+library(FNN)
+library(readxl)
+library(plotly)
+library(tidyverse)
+library(tidymodels)
+
+# Loading in data
+getwd()
+
+filename <- "/Users/raimasaha/DSRP-2024-Devyani/RaimaSaha/squirrel_data_clean.csv"
+
+clean_data <- read.csv(filename)  
+
+head(clean_data)
+clean_data
+```
+
+```{r}
+#| echo: false
+#| message: false
+# creating a subset of data using features (location, hectare, shift, primary fur color) we need
+knn_clean_data <- clean_data |>
+  select(latitude, longitude, location_num, shift_num, primary_fur_color_num, human_interaction) |>
+  na.omit() # omitting any missing data
+
+
+# splitting data into training and testing sets
+set.seed(42) # setting seed for reproducibility
+
+data <- knn_clean_data[, c("latitude", "longitude", "location_num", "shift_num", "primary_fur_color_num", "human_interaction")]
+
+split <- sample.split(data$human_interaction, SplitRatio = 0.8)
+train_data <- subset(data, split == TRUE)
+test_data <- subset(data, split == FALSE)
+
+# fitting model to training data based on k = 5
+knn_model <- knn(train = train_data[,c("latitude", "longitude", "location_num", "shift_num", "primary_fur_color_num")], test = test_data[, c("latitude", "longitude", "location_num", "shift_num", "primary_fur_color_num")], cl = train_data$human_interaction, k = 5)
+
+# testing model
+pred <- knn_model
+
+# evaluating model
+confusion_matrix <- table(test_data$human_interaction, pred)
+accuracy <- sum(diag(confusion_matrix)) / sum(confusion_matrix)
+```
+
+Here is the confusion matrix
+
+```{r}
+#| echo: false
+#| message: false
+confusion_matrix
+```
+
+and the accuracy.
+
+```{r}
+#| echo: false
+#| message: false
+accuracy
+```
+
+Figure 10 shows the accuracy of different KNN models run at different values of k to see which one yields the highest accuracy.
+
+```{r}
+#| echo: false
+#| message: false
+#| include: false
+k_vector = c()
+accuracy_vector = c()
+
+for (i in 1:20) {
+  knn_model <- knn(train = train_data[,c("latitude", "longitude", "location_num", "shift_num", "primary_fur_color_num")], test = test_data[, c("latitude", "longitude", "location_num", "shift_num", "primary_fur_color_num")], cl = train_data$human_interaction, k = i)
+  
+  pred <- knn_model
+  confusion_matrix <- table(test_data$human_interaction, pred)
+  accuracy <- sum(diag(confusion_matrix)) / sum(confusion_matrix)
+   
+  k_vector <- append(k_vector, i)
+  accuracy_vector <- append(accuracy_vector, accuracy)
+  
+}
+df <- data.frame(k = k_vector, accuracy = accuracy_vector)
+df
+max(df$accuracy)
+```
+
+```{r}
+#| echo: false
+#| message: false
+fig <- plot_ly(
+  x = k_vector,
+  y = accuracy_vector,
+  name = "Measure of accuracy based on k",
+  type = "bar"
+) |>
+  layout(title = "Accuracy based on values of k", plot_bgcolor = "#e5ecf6",
+         xaxis = list(title = "Values of k"), yaxis = list(title = "Accuracy levels"))
+  
+fig
+```
+
+Figure 10 shows that the plot has the highest accuracy of 0.61959 at k = 12.
 
 # Discussion
 
-Acknowledgements
+# Acknowledgements
 
-Sources
+# Sources
