@@ -60,7 +60,7 @@ train_data <- subset(data, split == TRUE)
 test_data <- subset(data, split == FALSE)
 ```
 
-Fitting model to training data based on k = 5
+Fitting model to training data based on k = 4
 
 ```{r}
 knn_model <- knn(train = train_data[,c("latitude", "longitude", "location_num", "shift_num", "primary_fur_color_num")], test = test_data[, c("latitude", "longitude", "location_num", "shift_num", "primary_fur_color_num")], cl = train_data$human_interaction, k = 4)
