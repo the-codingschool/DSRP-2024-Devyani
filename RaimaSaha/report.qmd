@@ -242,6 +242,8 @@ Figure 7 below displays the correlation between shift and human interaction.
 corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Shift and Human Interaction", mar=c(0,0,1,0))
 ```
 
+## Primary Fur Color and Human Interaction
+
 # Discussion
 
 Acknowledgements
