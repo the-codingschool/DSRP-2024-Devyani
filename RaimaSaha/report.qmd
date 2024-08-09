@@ -1,5 +1,5 @@
 ---
-title: "Various factors found significant to predicting the Eastern gray squirrel in Central Park, NYC interaction with humans"
+title: "Various factors associated with Eastern gray squirrels’ interactions with humans in Central Park"
 author: "Raima Saha"
 format: html
 editor: visual
@@ -8,6 +8,8 @@ editor: visual
 # Abstract
 
 # Background, Research Question, and Hypotheses
+
+The Eastern Gray Squirrel was first introduced to New York City as part of an attempt to beautify and naturalize what was becoming a very crowded and polluted city. Over a century later, this species has not only seeming integrated seamlessly to the chaotic life in the Big Apple, but as also learned to peacefully coexist with humans. As one of the only undomesticated animals in New York City, the Eastern Gray squirrel's adaptation is a fascinating phenomena of evolution. However, can
 
 # Results
 
@@ -92,7 +94,7 @@ Figure 1 returns a correlogram between the principle components in the covarianc
 ```{r}
 #| echo: false
 #| message: false
-corrplot(cov_matrix, method = "color")
+corrplot(cov_matrix, method = "color", cl.ratio = 0.3)
 ```
 
 Table 2 shows the total explained variance. It is said that
@@ -353,7 +355,7 @@ Figure 7 below displays the correlation between shift and human interaction. \*a
 #| echo: false
 #| message: false
 
-corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Shift and Human Interaction", mar=c(0,0,1,0))
+corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Shift and Human Interaction", mar=c(0,0,1,0), cl.ratio = 0.2)
 ```
 
 ### Location and Human Interaction
@@ -386,7 +388,7 @@ Figure 8 shows the correlation between location and human interaction. \*add ins
 #| echo: false
 #| message: false
 
-corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Location and Human Interaction", mar=c(0,0,1,0), cl.ratio = 0.3)
+corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Location and Human Interaction", mar=c(0,0,1,0), cl.ratio = 0.2)
 ```
 
 ### Primary Fur Color and Human Interaction
@@ -419,7 +421,7 @@ Figure 9 shows the correlation between primary fur color and human interaction. 
 #| echo: false
 #| message: false
 
-corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Primary Fur Color and Human Interaction", mar=c(0,0,2,0), cl.ratio = 0.4) 
+corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Primary Fur Color and Human Interaction", mar=c(0,0,2,0), cl.ratio = 0.25) 
 ```
 
 ## KNN Model
