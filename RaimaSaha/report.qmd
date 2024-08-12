@@ -7,9 +7,15 @@ editor: visual
 
 # Abstract
 
-# Background, Research Question, and Hypotheses
+# Background
 
-The Eastern Gray Squirrel was first introduced to New York City as part of an attempt to beautify and naturalize what was becoming a very crowded and polluted city. Over a century later, this species has not only seeming integrated seamlessly to the chaotic life in the Big Apple, but as also learned to peacefully coexist with humans. As one of the only undomesticated animals in New York City, the Eastern Gray squirrel's adaptation is a fascinating phenomena of evolution. However, can
+The Eastern Gray Squirrel was first introduced to New York City as part of an attempt to beautify and naturalize what was becoming a very crowded and polluted city. Over a century later, this species has not only seeming integrated seamlessly to city life but as also learned to peacefully coexist with humans. Squirrels are a crucial
+
+## Research Question
+
+This led me to my research question: Does various factors, such as geographical location,
+
+## Approach
 
 # Results
 
@@ -322,7 +328,7 @@ Figure 6 below displays a correlogram showing that squirrels with a primary fur 
 #| echo: false
 #| message: false
 
-corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Hectare and Human Interaction", mar=c(0,0,1,0))
+corrplot(chisq_results$residuals, is.cor = FALSE, method = "color", title = "Correlation between Hectare and Human Interaction", mar=c(0,0,1,0), cl.ratio = 0.45)
 ```
 
 ### Shift and Human Interaction
@@ -555,6 +561,8 @@ fig
 Figure 10 shows that the plot has the highest accuracy of 0.61959 at k = 12.
 
 # Discussion
+
+As one of the only undomesticated animals in New York City, the Eastern Gray squirrel's adaptation is a fascinating phenomena of evolution. However, can
 
 # Acknowledgements
 
