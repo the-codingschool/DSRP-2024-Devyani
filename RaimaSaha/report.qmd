@@ -581,3 +581,5 @@ As one of the only undomesticated animals in New York City, the Eastern Gray squ
 # Acknowledgements
 
 # Sources
+
+For more insight into my data cleaning and analysis process, go to my GitHub repository here: <https://github.com/the-codingschool/DSRP-2024-Devyani/tree/main>.
