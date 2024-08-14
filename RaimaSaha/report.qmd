@@ -5,36 +5,6 @@ format: html
 editor: visual
 ---
 
-# Abstract
-
-# Background
-
-The Eastern Gray Squirrel was first introduced to New York City as part of an attempt to beautify and naturalize what was becoming a very crowded and polluted city. Over a century later, this species has not only seeming integrated seamlessly to city life but as also learned to peacefully coexist with humans. Squirrels are a crucial part of the ecosystem, as prey for predators and burying acorns that become trees (Getting to Know Central Parks Squirrels). They remain an integral part of New York City, whose population has grown to over 8 million people (US Census).
-
-This led me to wonder: What factors, such as geographical coordinates, location, time of day, and primary fur color, impact a squirrel’s behavior toward humans?
-
-Analyzing squirrel's interactions with humans could lead to improved relationships between the two populations so that they can continue coexisting peacefully and maintain an equilibrium.
-
-The dataset used for this analysis is from The Squirrel Census, multimedia science prjet dedicated to the Eastern Gray Squirrels in New York (The Squirrel Census Website). The dataset, 2018 Central Park Squirrel Census, contian 3,023 observation and 31 varialbes detailing age, fur color, activity, and behavior of each of the squirrels.
-
-## Approach
-
-My approach to my research question can be broken into the following parts:
-
-1.  Principal Component Analysis
-2.  Chi-Squared Test of Independence
-3.  K-Nearest Neighbors Model
-
-In each, I focused on the relationship between
-
-### Principal Component Analysis 
-
-Principal Component Analysis (PCA) is a techniqued used to reduce the dimensionality of a dataset. In other words, it determines which features, or variables, in the dataset account for the most variance and are most important. Considering that there are 31 variables in this dataset
-
-# Results
-
-## Principal Component Analysis (PCA)
-
 ```{r}
 #| echo: false
 #| message: false
@@ -42,9 +12,9 @@ Principal Component Analysis (PCA) is a techniqued used to reduce the dimensiona
 # Install necessary packages if not already installed
 if (!require("dplyr")) install.packages("dplyr")
 if (!require("janitor")) install.packages("janitor")
-# if (!require("ggplot2")) install.packages("ggplot2")
+if (!require("ggplot2")) install.packages("ggplot2")
 if (!require("tidyr")) install.packages("tidyr")
-# if (!require("sf")) install.packages("sf") 
+if (!require("sf")) install.packages("sf") 
 # if (!require("mapview")) install.packages("mapview")
 # if (!require("maps")) install.packages("maps")
 # if (!require("OpenStreetMap")) install.packages("OpenStreetMap")
@@ -61,11 +31,11 @@ if (!require("ggrepel")) install.packages("ggrepel")
 
 # Load necessary libraries
 library(dplyr)
- library(janitor)
-# library(ggplot2)
+library(janitor)
+library(ggplot2)
 library(tidyr)
-# library(sf)
-# library(mapview)
+library(sf)
+library(mapview)
 # library(maps)
 # library(OpenStreetMap)
 library(caret)  # For cross-validation
@@ -84,6 +54,49 @@ getwd()
 filename <- "/Users/raimasaha/DSRP-2024-Devyani/RaimaSaha/squirrel_data_clean.csv"
 
 clean_data <- read.csv(filename)  
+```
+
+# Abstract
+
+# Background
+
+The Eastern Gray Squirrel was first introduced to New York City as part of an attempt to beautify and naturalize what was becoming a very crowded and polluted city. Over a century later, this species has not only seeming integrated seamlessly to city life but as also learned to peacefully coexist with humans. Squirrels are a crucial part of the ecosystem, as prey for predators and burying acorns that become trees (Getting to Know Central Parks Squirrels). They remain an integral part of New York City, whose population has grown to over 8 million people (US Census).
+
+This led me to wonder: What factors, such as geographical coordinates, location, time of day, and primary fur color, impact a squirrel’s behavior toward humans?
+
+Analyzing squirrel's interactions with humans could lead to improved relationships between the two populations so that they can continue coexisting peacefully and maintain an equilibrium.
+
+The dataset used for this analysis is from The Squirrel Census, multimedia science projet dedicated to the Eastern Gray Squirrels in New York (The Squirrel Census Website). The dataset, 2018 Central Park Squirrel Census, contains 3,023 observation and 31 variables detailing age, fur color, activity, and behavior of each of the squirrels.
+
+## Approach
+
+My approach to my research question can be broken into the following parts:
+
+1.  Principal Component Analysis
+2.  Chi-Squared Test of Independence
+3.  K-Nearest Neighbors Model
+
+In each, I focused on the relationship between geographical location and human interaction, location and human interaction, shift and human interaction, and primary fur color and human interaction.
+
+Geographical location: This is where the squirrel is found. For parts of the analysis that require numerical data, I used the `latitude` and `longitude` variables to conduct such analysis. However, some parts of the analysis, such as the Chi-Squared Test of Independence, required categorical data, in which case I used the `hectare` variable (manipulated differently than the original provided variable which can be looked at further in my dataCleaning file on GitHub). This variable divides the area of Central park in a grid-like formation and is labeled 01A to 42I.
+
+```{r}
+my_sf <- clean_data |>
+  st_as_sf(coords = c('longitude', 'latitude')) |>
+  st_set_crs(4326)
+
+ggplot() + geom_sf(data = my_sf, aes(color = hectare, shape = factor(foraging))) + labs(shape = "foraging") + theme(axis.text.x = element_text(angle = 90))
+```
+
+### Principal Component Analysis
+
+Principal Component Analysis (PCA) is a technique used to reduce the dimensionality of a dataset. In other words, it determines which features, or variables, in the dataset account for the most variance and are most important. Considering that there are 31 variables in this dataset
+
+# Results
+
+## Principal Component Analysis (PCA)
+
+```{}
 ```
 
 Table 1 displays a covariance matrix yielded after conducting PCA on the variables latitude, longitude, primary_fur_color_num, shift_num, and location_num.
