@@ -27,7 +27,7 @@ if (!require("ggfortify")) install.packages("ggfortify")
 if (!require("corrplot")) install.packages("corrplot")
 if (!require("ggbiplot")) install.packages("ggbiplot")
 if (!require("ggrepel")) install.packages("ggrepel")
-# if (!require("stats")) install.packages("stats")
+if (!require("stats")) install.packages("stats")
 if (!require("caTools")) install.packages("caTools")
 if (!require("downloader")) install.packages("downloader")
 if (!require("FNN")) install.packages("FNN")
@@ -52,7 +52,7 @@ library(ggfortify)
 library(corrplot)
 library(ggbiplot)
 library(ggrepel)
-# library(stats)
+library(stats)
 library(caTools)
 library(downloader)
 library(caTools)
@@ -69,9 +69,11 @@ clean_data <- read.csv(filename)
 
 # Abstract
 
+The Eastern Gray squirrels were introduced to New York City in the 1870 (Allen, "Getting to Know"). Though they've lived there for a while, little is known about them, especially on how they interact with humans. With Principal Component Analysis, the Chi-Squared Test of Independence, and the K-Nearest Neighbors algorithms, it will be determined what factors, such as geographical location, location, shift, and primary fur color, impact a Central Park squirrel's interaction with humans. It was found that geographical location, location, shift, and primary fur color were all significantly correlated to human interaction. Combined with other data about the Eastern Gray squirrel from outside New York City, evolutionary patterns can be found to better understand evolution as a whole and the psyche of the Eastern Gray squirrel so they can continue coexisting peacefully with humans in New York City.
+
 # Background
 
-The Eastern Gray Squirrel was first introduced to New York City as part of an attempt to beautify and naturalize what was becoming a very crowded and polluted city. Over a century later, this species has not only seeming integrated seamlessly to city life but as also learned to peacefully coexist with humans. Squirrels are a crucial part of the ecosystem, as prey for predators and burying acorns that become trees (Getting to Know Central Parks Squirrels). They remain an integral part of New York City, whose population has grown to over 8 million people (US Census).
+The Eastern Gray Squirrel was first introduced to New York City as part of an attempt to beautify and naturalize what was becoming a very crowded and polluted city. Over a century later, this species has not only seeming integrated seamlessly to city life but as also learned to peacefully coexist with humans. Squirrels are a crucial part of the ecosystem, as prey for predators and burying acorns that become trees (Allen, "Getting to Know"). They remain an integral part of New York City, whose population has grown to over 8 million people (US Census).
 
 This led me to wonder: What factors, such as geographical coordinates, location, time of day, and primary fur color, impact a squirrel’s behavior toward humans?
 
@@ -85,7 +87,7 @@ I focused on the relationship between geographical location and human interactio
 
 It is important to note that I converted many of these categorical variables into numeric types using various encoding methods, the details of which will be included in each of the descriptions of the variables.
 
-Geographical location: This is where the squirrel is found. For parts of the analysis that require numerical data, I used the `latitude` and `longitude` variables to conduct such analysis. However, some parts of the analysis, such as the Chi-Squared Test of Independence, required categorical data, in which case I used the `hectare` variable (manipulated differently than the original provided variable which can be looked at further in my dataCleaning file on GitHub). This variable divides the area of Central park in a grid-like formation and is labeled 01A to 42I. An example of how it is visualized is provided below. For the sake of consistency, I will refer to all these variables as "geographical location" as part of the larger context, but will explicitly refer to them by their given variable names whilst explaining the analysis.
+Geographical location: This is where the squirrel is found. For parts of the analysis that require numerical data, I used the `latitude` and `longitude` variables to conduct such analysis. However, some parts of the analysis, such as the Chi-Squared Test of Independence, required categorical data, in which case I used the `hectare` variable (manipulated differently than the original provided variable). This variable divides the area of Central park in a grid-like formation and is labeled 01A to 42I. An example of how it is visualized is provided below. For the sake of consistency, I will refer to all these variables as "geographical location" as part of the larger context, but will explicitly refer to them by their given variable names whilst explaining the analysis.
 
 ```{r}
 #| echo: false
@@ -153,7 +155,7 @@ Figure 1 returns a correlogram visualizing the principle components in the covar
 ```{r}
 #| echo: false
 #| message: false
-corrplot(cov_matrix, method = "color", cl.ratio = 0.3)
+corrplot(cov_matrix, method = "color", cl.ratio = 0.3, title = "Correlation Matrix of all Principal Components", mar=c(0,0,1,0))
 ```
 
 Table 2 shows the total explained variance. It is said that you need the number of components that can explain up to or more than 0.9 of the variance. Looking at the table, the first five components explain more than 0.9 of the variance and by this proportion are the most important and should be the ones considered.
@@ -207,21 +209,13 @@ scree_plot <- ggplot(data.frame(PC = 1:length(eigenvalues), Eigenvalue = eigenva
   geom_point() +
   xlab('Principal Component') +
   ylab('Eigenvalue') +
-  ggtitle('Scree Plot') +
+  ggtitle('Scree Plot of Eigenvalues of Principal Components') +
   theme_minimal()
 
 print(scree_plot)
 ```
 
-Figure 4 is a biplot of the PCA. `latitude` and `longitude` appear to be closely correlated, which is consistent with the previous findings. The near 90 degree angle by `shift_num`, `location_num`, and `latitude` and `longitude` vectors show that these variables are not closely correlated.
-
-```{r}
-#| echo: false
-#| message: false
-ggbiplot(pca, obs.scale = 1, var.scale = 1, ellipse = TRUE, circle = TRUE, repel = TRUE, color = human_interaction_num) + scale_x_discrete(labels=c("shift_num"="Shift", "primary_fur_color_num"="Primary Fur Color")) + ggtitle("Principal Component 1 vs Principal Component 2") + labs(color = "Shift") + theme_minimal()
-```
-
-Figure 5 shows a 2D representation of principal component 1 and principal component 2. The points are colored based on Human Interaction, with 1 = Approaches, 2 = Indifferent, and 3 = Runs from.
+Figure 4 shows a 2D representation of principal component 1 and principal component 2. The points are colored based on Human Interaction, with 1 = Approaches, 2 = Indifferent, and 3 = Runs from.
 
 ```{r}
 #| echo: false
@@ -229,7 +223,7 @@ Figure 5 shows a 2D representation of principal component 1 and principal compon
 components <- pca[["x"]]
 components <- data.frame(components)
 components <- cbind(components, temp_data$primary_fur_color)
-# components$PC3 <- -components$PC3
+components$PC3 <- -components$PC3
 components$PC2 <- -components$PC2
 
 axis = list(showline=FALSE,
@@ -240,21 +234,82 @@ axis = list(showline=FALSE,
 
 fig <- plot_ly(components, x = ~PC1, y = ~PC2, color = ~as.character(temp_data$human_interaction_num), colors = c("black", "brown", "gray"), type = "scatter", mode = "markers") |>
   layout(
-    title = list(
-      title = "PC 1 vs. PC 2"),
+   title="Principal Component 1 vs. Principal Component 2",
     plot_bgcolor = "#e5ecf6",
     xaxis = list(
-      title = "PC1",
+      title = "Principal Component 1",
       zerolinecolor = "#ffff",
       zerolinewidth = 2,
       gridcolor = "#ffff"),
     yaxis = list(
-      title = "PC2",
+      title = "Principal Component 2",
       zerolinecolor = "#ffff",
       zerolinewidth = 2,
       gridcolor = "#ffff"),
     legend = list(title=list(text="Human Interaction")))
 fig
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| include: false
+
+# plotly version of a PCA biplot
+
+components <- pca[["x"]]
+components <- data.frame(components)
+components <- cbind(components, temp_data$primary_fur_color)
+# components$PC3 <- -components$PC3
+components$PC2 <- -components$PC2
+explained_variance <- summary(pca)[["sdev"]]
+explained_variance <- explained_variance[1:2]
+comp <- pca[["rotation"]]
+comp[,'PC2'] <- - comp[,'PC2']
+loadings <- comp
+for (i in seq(explained_variance)){
+  loadings[,i] <- comp[,i] * explained_variance[i]
+}
+
+axis = list(showline=FALSE,
+            zeroline=FALSE,
+            gridcolor='#ffff',
+            ticklen=4,
+            titlefont=list(size=13))
+
+features <- c("latitude", "longitude", "primary_fur_color_num", "shift_num", "location_num")
+
+fig <- plot_ly(components, x = ~PC1, y = ~PC2, color = ~as.character(temp_data$human_interaction_num), colors = c("black", "brown", "gray"), type = "scatter", mode = "markers") |>
+  layout(
+    title=list(title=list(text = "Principal Component 1 vs. Principal Component 2")),
+    plot_bgcolor = "#e5ecf6",
+    xaxis = list(
+      title = "Principal Component 1",
+      zerolinecolor = "#ffff",
+      zerolinewidth = 2,
+      gridcolor = "#ffff"),
+    yaxis = list(
+      title = "Principal Component 2",
+      zerolinecolor = "#ffff",
+      zerolinewidth = 2,
+      gridcolor = "#ffff"),
+    legend = list(title=list(text="Human Interaction")))
+
+for (i in seq(4)){
+  fig <- fig %>%
+    add_segments(x = 0, xend = loadings[i, 1], y = 0, yend = loadings[i, 2], line = list(color = 'black'),inherit = FALSE, showlegend = FALSE) %>%
+    add_annotations(x=loadings[i, 1], y=loadings[i, 2], ax = 0, ay = 0,text = features[i], xanchor = 'center', yanchor= 'bottom')
+}
+
+fig
+```
+
+Figure 5 is a biplot of the PCA. `latitude` and `longitude` appear to be closely correlated, which is consistent with the previous findings. The near 90 degree angle by `shift_num`, `location_num`, and `latitude` and `longitude` vectors show that these variables are not closely correlated.
+
+```{r}
+#| echo: false
+#| message: false
+ggbiplot(pca, obs.scale = 1, var.scale = 1, ellipse = TRUE, circle = TRUE, repel = TRUE, color = human_interaction_num) + scale_x_discrete(labels=c("shift_num"="Shift", "primary_fur_color_num"="Primary Fur Color")) + ggtitle("Principal Component 1 vs Principal Component 2") + labs(color = "Shift") + theme_minimal()
 ```
 
 Figure 6 shows the result of comparing each principal component against each other. The points are colored based on Human Interaction, with 1 = Approaches, 2 = Indifferent, and 3 = Runs from. Upon first glance, principal component 3 and principal component 2 are clustered into very distinct, separate groups, potentially revealing a relationship between primary fur color (principal component 3) and longitude (principal component 2).
@@ -293,6 +348,7 @@ fig <- components |>
   ) %>%
   style(diagonal = list(visible = FALSE)) %>%
   layout(
+    title="Visualizing all the Principal Components",
     legend=list(title=list(text='Human Interaction')),
     hovermode='closest',
     dragmode= 'select',
@@ -331,7 +387,7 @@ total_explained_variance_ratio <- 100 * sum(total_explained_variance_ratio)
 fig <- plot_ly(components, x = ~PC1, y = ~PC2, z = ~PC3, color = ~as.character(temp_data$human_interaction_num), colors = c('black','brown','gray') ) |>
   add_markers(size = 12)
 
-title <- "Total Explained Variance = 0.6805"
+title <- "3D Representation of Top 3 Principal Components"
   
 fig <- fig |>
   layout(
@@ -569,9 +625,9 @@ fig <- plot_ly(
 fig
 ```
 
-Figure 10 shows that the plot has the highest accuracy of 0.61959 at k = 12.
+Figure 10 shows that the plot has the highest accuracy of 0.6218679 at k = 15.
 
-Running the model again at k = 12, the confusion matrix
+Running the model again at k = 15, we can see that in the confusion matrix, only number of correct "indifferent" predictions increases, while the number of true accurate "approaches" and "runs from" predictions decreases, which could be a result of over fitting the model and the training and testing data including more observation in the "indifferent" and "runs from" categories.
 
 ```{r}
 #| echo: false
@@ -591,8 +647,8 @@ split <- sample.split(data$human_interaction, SplitRatio = 0.8)
 train_data <- subset(data, split == TRUE)
 test_data <- subset(data, split == FALSE)
 
-# fitting model to training data based on k = 5
-knn_model <- knn(train = train_data[,c("latitude", "longitude", "location_num", "shift_num", "primary_fur_color_num")], test = test_data[, c("latitude", "longitude", "location_num", "shift_num", "primary_fur_color_num")], cl = train_data$human_interaction, k = 12)
+# fitting model to training data based on k = 15
+knn_model <- knn(train = train_data[,c("latitude", "longitude", "location_num", "shift_num", "primary_fur_color_num")], test = test_data[, c("latitude", "longitude", "location_num", "shift_num", "primary_fur_color_num")], cl = train_data$human_interaction, k = 15)
 
 # testing model
 pred <- knn_model
@@ -608,7 +664,7 @@ accuracy <- sum(diag(confusion_matrix)) / sum(confusion_matrix)
 confusion_matrix
 ```
 
-and accuracy
+The accuracy does increase, but that's due to the number of correct "indifferent" predictions increasing as a result of correct "approaches" and "runs from" predictions decreasing.
 
 ```{r}
 #| echo: false
@@ -616,14 +672,24 @@ and accuracy
 accuracy
 ```
 
-we see that the number of true, correct predictions on the diagonals of the confusion matrix increase as does the accuracy.
-
 # Discussion
 
-As one of the only undomesticated animals in New York City, the Eastern Gray squirrel's adaptation is a fascinating phenomena of evolution. However, can
+As one of few undomesticated animals in New York City, the Eastern Gray squirrel's adaptation is a fascinating phenomena of evolution (Getting to Know Central Parks Squirrels). However, only so much can be deduced about them just be looking at the Eastern Gray squirrel's solely in Central Park, New York City. While it is now known geographical location, location, shift, and primary fur color all have a significant correlation with human interaction, is true only for the Eastern Gray squirrels in Central Park, or does it hold true for them in New York City parks, for all Eastern Gray squirrels in general? More data on the Eastern Gray squirrels in other locales in New York City, as well as the original species of Eastern Gray squirrels, will be needed to draw more conclusions about the evolutionary pathway of the species, a worthwhile goal to understand the psyche of the Eastern Gray squirrel. Ramifications of this research will include better understanding of the Eastern Gray squirrel, as well as knowledge to increase the safety of interactions between squirrels and humans so they can continue to coexist peacefully.
+
+# Code and Data Availability
+
+To access the dataset the 2018 Central Park Squirrel Census, go to NYC Open Data website here: <https://data.cityofnewyork.us/Environment/2018-Central-Park-Squirrel-Census-Squirrel-Data/vfnx-vebw/about_data>
+
+For more insight into my data cleaning and analysis process, go to my GitHub repository here: <https://github.com/the-codingschool/DSRP-2024-Devyani/tree/main>.
 
 # Acknowledgements
 
+I would like to thank my mentor, Ms. Devyani Rastogi, for guiding me during the research process and providing the dataset. I would also like to thank Ms. Sarah Parker for teaching the lectures and providing me with all the skills and knowledge necessary to complete this project. Additionally, thank you to my teaching assistant Ms. Wanjiru Randolph and Ms. Pippa Lother for helping me troubleshoot through technical difficulties. Finally, I would like to thank The Coding School and Columbia University for hosting this program and making this research possible. You all have instrumental in my research and data science journey, and I could not thank you enough.
+
 # Sources
 
-For more insight into my data cleaning and analysis process, go to my GitHub repository here: <https://github.com/the-codingschool/DSRP-2024-Devyani/tree/main>.
+Allen, Jamie. "Getting to Know Central Park's Squirrels." Central Park Conservancy, Oct. 2022, www.centralparknyc.org/articles/getting-to-know-central-parks-squirrels#:\~:text=Plugging%20the%20numbers%20into%20a,(1%2C798%20per%20square%20mile).&text=Based%20on%20previous%20counts%20we,be%20a%20healthy%2C%20sustainable%20number. Accessed 15 Aug. 2024.
+
+---. "2018 Central Park Squirrel Census." The Squirrel Census, 2012, www.thesquirrelcensus.com/. Accessed 15 Aug. 2024.
+
+***\*ADD CENSUS CITATION***\*
