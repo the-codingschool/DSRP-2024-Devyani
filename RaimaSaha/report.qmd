@@ -1,7 +1,19 @@
 ---
 title: "Various factors associated with Eastern gray squirrels’ interactions with humans in Central Park"
 author: "Raima Saha"
-format: html
+format: 
+  html:
+    toc: true
+    toc-expand: true
+    toc-location: right-body
+    
+    other-links:
+        - text: 2018 Squirrel Central Park Census
+          href: https://data.cityofnewyork.us/Environment/2018-Central-Park-Squirrel-Census-Squirrel-Data/vfnx-vebw/about_data
+    code-links:
+        - text: GitHub Workspace
+          icon: file-code
+          href: https://github.com/the-codingschool/DSRP-2024-Devyani/tree/main
 editor: visual
 ---
 
@@ -73,13 +85,13 @@ The Eastern Gray squirrels were introduced to New York City in the 1870 (Allen, 
 
 # Background
 
-The Eastern Gray Squirrel was first introduced to New York City as part of an attempt to beautify and naturalize what was becoming a very crowded and polluted city. Over a century later, this species has not only seeming integrated seamlessly to city life but as also learned to peacefully coexist with humans. Squirrels are a crucial part of the ecosystem, as prey for predators and burying acorns that become trees (Allen, "Getting to Know"). They remain an integral part of New York City, whose population has grown to over 8 million people (US Census).
+The Eastern Gray Squirrel was first introduced to New York City as part of an attempt to beautify and naturalize what was becoming a very crowded and polluted city. Over a century later, this species has not only seeming integrated seamlessly to city life but as also learned to peacefully coexist with humans. Squirrels are a crucial part of the ecosystem, as prey for predators and burying acorns that become trees (Allen, "Getting to Know"). They remain an integral part of New York City, whose population has grown to over 8 million people (2020 Decennial Census).
 
 This led me to wonder: What factors, such as geographical coordinates, location, time of day, and primary fur color, impact a squirrel’s behavior toward humans?
 
 Analyzing squirrel's interactions with humans could lead to improved relationships between the two populations so that they can continue coexisting peacefully and maintain an equilibrium.
 
-The dataset used for this analysis is from The Squirrel Census, multimedia science project dedicated to the Eastern Gray Squirrels in New York (The Squirrel Census Website). The dataset, 2018 Central Park Squirrel Census, contains 3,023 observation and 31 variables detailing age, fur color, activity, and behavior of each of the squirrels.
+The dataset used for this analysis is from The Squirrel Census, multimedia science project dedicated to the Eastern Gray Squirrels in New York (Allen, "2018"). The dataset, 2018 Central Park Squirrel Census, contains 3,023 observation and 31 variables detailing age, fur color, activity, and behavior of each of the squirrels.
 
 ## Approach
 
@@ -89,7 +101,7 @@ It is important to note that I converted many of these categorical variables int
 
 Geographical location: This is where the squirrel is found. For parts of the analysis that require numerical data, I used the `latitude` and `longitude` variables to conduct such analysis. However, some parts of the analysis, such as the Chi-Squared Test of Independence, required categorical data, in which case I used the `hectare` variable (manipulated differently than the original provided variable). This variable divides the area of Central park in a grid-like formation and is labeled 01A to 42I. An example of how it is visualized is provided below. For the sake of consistency, I will refer to all these variables as "geographical location" as part of the larger context, but will explicitly refer to them by their given variable names whilst explaining the analysis.
 
-```{r}
+```{r, fig.width=15, fig.height=11}
 #| echo: false
 #| message: false
 my_sf <- clean_data |>
@@ -688,8 +700,8 @@ I would like to thank my mentor, Ms. Devyani Rastogi, for guiding me during the 
 
 # Sources
 
+2020 Decennial Census. "New York City, New York." United States Census Bureau, 2020, data.census.gov/profile/New_York_city,\_New_York?g=160XX00US3651000#populations-and-people. Accessed 15 Aug. 2024.
+
 Allen, Jamie. "Getting to Know Central Park's Squirrels." Central Park Conservancy, Oct. 2022, www.centralparknyc.org/articles/getting-to-know-central-parks-squirrels#:\~:text=Plugging%20the%20numbers%20into%20a,(1%2C798%20per%20square%20mile).&text=Based%20on%20previous%20counts%20we,be%20a%20healthy%2C%20sustainable%20number. Accessed 15 Aug. 2024.
 
 ---. "2018 Central Park Squirrel Census." The Squirrel Census, 2012, www.thesquirrelcensus.com/. Accessed 15 Aug. 2024.
-
-***\*ADD CENSUS CITATION***\*
