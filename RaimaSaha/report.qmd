@@ -81,43 +81,43 @@ clean_data <- read.csv(filename)
 
 # Abstract
 
-The Eastern gray squirrels were introduced to New York City in the 1870s (Allen, "Getting to Know"). Though they've lived there for a while, little is known about them, especially on how they interact with humans. With Principal Component Analysis, the Chi-Squared Test of Independence, and the K-Nearest Neighbors algorithm, it will be determined what factors, such as geographical location, location, shift, and primary fur color, impact a Central Park squirrel's interaction with humans. It was found that geographical location, location, shift, and primary fur color were all significantly correlated to human interaction. Combined with other data about the Eastern gray squirrel from outside New York City, evolutionary patterns can be found to better understand evolution as a whole and the psyche of the Eastern gray squirrel so they can continue coexisting peacefully with humans in New York City.
+The Eastern gray squirrels were introduced to New York City in the 1870s (Allen, "Getting to Know"). Though they've lived there for a while, little is known about them, especially on how they interact with humans. With Principal Component Analysis, the Chi-Squared Test of Independence, and the K-Nearest Neighbors algorithm, it will be determined what factors, such as Geographical Location, Location, Shift, and Primary Fur Color, impact a Central Park squirrel's interaction with humans. It was found that gGeographical Location, Location, Shift, and Primary Fur Color were all significantly correlated to Human Interaction. Combined with other data about the Eastern gray squirrel from outside New York City, evolutionary patterns can be found to better understand evolution as a whole and the psyche of the Eastern gray squirrel so they can continue coexisting peacefully with humans in New York City.
 
 # Background
 
-The Eastern Gray Squirrel was first introduced to New York City as part of an attempt to beautify and naturalize what was becoming a very crowded and polluted city. Over a century later, this species has not only integrated seamlessly to city life but as also learned to peacefully coexist with humans. Squirrels are a crucial part of the ecosystem, as they are the food source for many carnivores and bury acorns that later become trees (Allen, "Getting to Know"). They remain an integral part of New York City, whose population has grown to over 8 million people (2020 Decennial Census).
+The Eastern gray squirrel was first introduced to New York City as part of an attempt to beautify and naturalize what was becoming a very crowded and polluted city. Over a century later, this species has not only integrated seamlessly to city life but as also learned to peacefully coexist with humans. Squirrels are a crucial part of the ecosystem, as they are the food source for many carnivores and bury acorns that later become trees (Allen, "Getting to Know"). They remain an integral part of New York City, whose population has grown to over 8 million people (2020 Decennial Census).
 
-This led me to wonder: What factors, such as geographical coordinates, location, time of day, and primary fur color, impact a squirrel’s behavior toward humans?
+This led me to wonder: What factors, such as Geographical Location, Location, Shift, and Primary Fur Color, impact a squirrel’s behavior toward humans?
 
-Analyzing squirrel's interactions with humans could lead to improved relationships between the two populations so that they can continue coexisting peacefully and maintain an equilibrium.
+Analyzing squirrel's interactions with humans could lead to improved relationships between the two populations so that they can continue coexisting peacefully and maintain a healthy equilibrium.
 
 The dataset used for this analysis is from The Squirrel Census, a multimedia science project dedicated to the Eastern gray squirrels in New York (Allen, "2018"). The dataset, 2018 Central Park Squirrel Census, contains 3,023 observation and 31 variables detailing the age, fur color, activity, and behavior of each of the squirrels.
 
 ## Approach
 
-I focused on the relationship between geographical location and human interaction, location and human interaction, shift and human interaction, and primary fur color and human interaction.
+I focused on the relationship between Geographical Location and Human Interaction, Location and Human Interaction, Shift and Human Interaction, and Primary Fur Color and Human Interaction.
 
 It is important to note that I converted many of these categorical variables into numeric types using various encoding methods, the details of which will be included in each of the descriptions of the variables.
 
-Geographical location: This is where the squirrel is found. For parts of the analysis that require numerical data, I used the `latitude` and `longitude` variables to conduct such analysis. However, some parts of the analysis, such as the Chi-Squared Test of Independence, required categorical data, in which case I used the `hectare` variable (manipulated differently than the original provided variable). This variable divides the area of Central park in a grid-like formation and is labeled 01A to 42I. An example of how it is visualized is provided below (Figure 1). For the sake of consistency, I will refer to all these variables as "geographical location" as part of the larger context, but will explicitly refer to them by their given variable names whilst explaining the analysis.
+Geographical location: This is where the squirrel is found. For parts of the analysis that require numerical data, I used the `latitude` and `longitude` variables to conduct such analysis. However, some parts of the analysis, such as the Chi-Squared Test of Independence, required categorical data, in which case I used the `hectare` variable (manipulated differently than the original provided variable). This variable divides the area of Central park in a grid-like formation and is labeled 01A to 42I. An example of how it is visualized is provided below (Figure 1). For the sake of consistency, I will refer to all these variables as "Geographical Location" as part of the larger context, but will explicitly refer to them by their given variable names whilst explaining the analysis.
 
-```{r, fig.width=15, fig.height=11}
+```{r, fig.width=15, fig.height=8}
 #| echo: false
 #| message: false
 my_sf <- clean_data |>
   st_as_sf(coords = c('longitude', 'latitude')) |>
   st_set_crs(4326)
 
-ggplot() + geom_sf(data = my_sf, aes(color = hectare)) + labs(title = "Hectare against latitudinal and longitudinal coordinates", color = "Hectare") + theme(axis.text.x = element_text(angle = 90), plot.title = element_text(hjust = -4))
+ggplot() + geom_sf(data = my_sf, aes(color = hectare)) + labs(title = "Hectare Against Latitudinal and Longitudinal Coordinates", color = "Hectare") + theme(axis.text.x = element_text(angle = 90), plot.title = element_text(hjust = -2))
 ```
 
-`location`: This variable describes location of the squirrel relative to the ground. "Ground Plane" means the squirrel was found on the ground and "Above Ground" means the squirrels was found above the ground. This variable was numerically encoded in `location_num` so "Ground Plane" equaled 0 and "Above Ground" equaled 1.
+Location: `location` describes the location of the squirrel relative to the ground. "Ground Plane" means the squirrel was found on the ground and "Above Ground" means the squirrels was found above the ground. This variable was numerically encoded in `location_num` so that "Ground Plane" equaled 0 and "Above Ground" equaled 1.
 
-`shift`: This variable describes the time of day the squirrel observation was recorded, "AM" or "PM." This variable was numerically encoded in `shift_num` so that "AM" equaled 0 and "PM" equaled 1.
+Shift: `shift` describes the time of day the squirrel observation was recorded, "AM" or "PM." This variable was numerically encoded in `shift_num` so that "AM" equaled 0 and "PM" equaled 1.
 
-`primary_fur_color`: This variable the main color of the squirrel, either "Gray," "Cinnamon," or "Black." The dataset also contains the variable `highlight_fur_color`, so it is important to make this distinction between the two fur colors. This variable was numerically encoded in `primary_fur_color_num` so that "Gray" equaled 1, "Cinnamon" equaled 2, and "Black" equaled 3. A value of 0 indicates an NA value.
+Primary Fur Color: `primary_fur_color` describes the main color of the squirrel, either "Gray," "Cinnamon," or "Black." The dataset also contains the variable `highlight_fur_color`, so it is important to make this distinction between the two fur colors. This variable was numerically encoded in `primary_fur_color_num` so that "Gray" equaled 1, "Cinnamon" equaled 2, and "Black" equaled 3. A value of 0 indicates an NA value.
 
-Human Interaction: This variable was initially separated so that each observation had a variable for all three types of interaction (`approaches`, `indifferent`, `runs_from`) and TRUE and FALSE to indicate which one the squirrel exhibited. I created a new categorical variable `human_interaction` that had "approaches," "indifferent," and "runs from" as different variable options. Additionally, I also numerically encoded this variable as `human_interaction_num` so that "approaches" equaled 1, "indifferent" equaled 2, and "runs from" equaled 3. A value of 0 indicates an NA value that no human interaction was was recorded according to the given options.
+Human Interaction: This variable was initially separated so that each observation had a variable for all three types of interaction (`approaches`, `indifferent`, `runs_from`) and TRUE and FALSE to indicate which one the squirrel exhibited. I created a new categorical variable `human_interaction` that had "approaches," "indifferent," and "runs from" as different variable options. Additionally, I also numerically encoded this variable as `human_interaction_num` so that "approaches" equaled 1, "indifferent" equaled 2, and "runs from" equaled 3. A value of 0 indicates an NA value and that no human interaction was recorded.
 
 My approach to my research question can be broken into the following parts:
 
@@ -127,30 +127,30 @@ My approach to my research question can be broken into the following parts:
 
 ### Principal Component Analysis
 
-Principal Component Analysis (PCA) is a technique used to reduce the dimensionality of a dataset. In other words, it determines which features, or variables, in the dataset account for the most variance and are most important. Considering that there are 31 variables in this dataset, I wanted to see which factors I was most interested (geographical location, location, shift, and primary fur color) accounted for most of the spread of the data and were most impactful to human interaction.
+Principal Component Analysis (PCA) is a technique used to reduce the dimensionality of a dataset. In other words, it determines which features, or variables, in the dataset account for the most variance and are most important. Considering that there are 31 variables in this dataset, I wanted to see which factors I was most interested (Geographical Location, Location, Shift, and Primary Fur Color) accounted for most of the spread of the data and were most impactful to human interaction. Since PCA can only be done on numeric variables, I used the encoded versions of the categorical variables to conduct this analysis.
 
 ### Chi-Squared Test of Independence
 
-The Chi-Squared Test of Independence is a statistical analysis test used to see if there is an association between two categorical variables. In other words, it describes whether two variables are related or not. I used this test to see if geographical location, location, shift, and primary fur color where significantly associated with human interaction. My null hypothesis was that there was there was no significant association between geographical location, location, shift, and primary fur color and human interaction. My alternative hypothesis was that there was a significant association between geographical location, location, shift, and primary fur color and human interaction. I set my significance threshold at 0.05. This means that if the p-value returned from the analysis is less than 0.05, the variables I would be comparing would be significantly related and I would reject my null hypothesis. Otherwise, if the p-value is greater than 0.05, the variables I would be comparing would not be significantly related and I would fail to reject my null hypothesis.
+The Chi-Squared Test of Independence is a statistical analysis test used to see if there is an association between two categorical variables. In other words, it describes whether two variables are related or not. I used this test to see if Geographical Location, Location, Shift, and Primary Fur Color were significantly associated with Human Interaction. My null hypothesis was that there was there was no significant association between Geographical Location, Location, Shift, and Primary Fur Color and Human Interaction. My alternative hypothesis was that there was a significant association between Geographical Location, Location, Shift, and Primary Fur Color and Human Interaction. I set my significance threshold at 0.05. This means that if the p-value returned from the analysis is less than 0.05, the variables I would be comparing would be significantly related and I would reject my null hypothesis. Otherwise, if the p-value is greater than 0.05, the variables I would be comparing would not be significantly related and I would fail to reject my null hypothesis.
 
 ### K-Nearest Neighbors Model
 
-K-Nearest Neighbors (KNN) is a supervised machine learning learning model to classify data into certain groups. Splitting the data into training and testing data, I used this algorithm to create a model to see if it was possible to accurately predict how a squirrel would act based on geographical location, location, shift, and primary fur color.
+K-Nearest Neighbors (KNN) is a supervised machine learning learning model to classify data into certain groups. Splitting the data into training and testing data, I used this algorithm to create a model to see if it was possible to accurately predict how a squirrel would act based on Geographical Location, Location, Shift, and Primary Fur Color.
 
 # Results
 
 ## Principal Component Analysis (PCA)
 
-Table 1 displays a covariance matrix yielded after conducting PCA on the variables `latitude`, `longitude`, `primary_fur_color_num`, `shift_num`, and `location_num`. Positive values indicate a positive relationship between certain principle components, while negative values indicate a negative relationship between certain principle components, however, as a table, it is hard to deduce any conclusions.
+Table 1 displays a covariance matrix yielded after conducting PCA on the variables `latitude`, `longitude`, `primary_fur_color_num`, `shift_num`, `location_num`, and `human_interaction_num` Positive values indicate a positive relationship between certain principle components, while negative values indicate a negative relationship between certain principle components. However, as a table, it is hard to come to any conclusions.
 
 ```{r}
 #| echo: false
 #| message: false
 # Standardize the data for running:foraging
 temp_data <- clean_data |>
-  select(latitude, longitude, primary_fur_color_num, shift_num, location_num, human_interaction_num) |>
+  select(latitude, longitude, primary_fur_color_num, shift_num, location_num, human_interaction_num, human_interaction) |>
   drop_na()
-scaled_data <- scale(temp_data[, ])
+scaled_data <- scale(temp_data[, 1:6])
 
 # Perform PCA
 pca <- prcomp(scaled_data, center = TRUE, scale. = TRUE)
@@ -227,14 +227,15 @@ scree_plot <- ggplot(data.frame(PC = 1:length(eigenvalues), Eigenvalue = eigenva
 print(scree_plot)
 ```
 
-Figure 5 shows a 2D representation of principal component 1 and principal component 2. The points are colored based on Human Interaction, with 1 = Approaches, 2 = Indifferent, and 3 = Runs from.
+Figure 5 shows a 2D representation of principal component 1 and principal component 2. The points are colored based on Human Interaction.
 
 ```{r}
 #| echo: false
 #| message: false
+#| warning: false
 components <- pca[["x"]]
 components <- data.frame(components)
-components <- cbind(components, temp_data$primary_fur_color)
+components <- cbind(components, temp_data$human_interaction_num)
 components$PC3 <- -components$PC3
 components$PC2 <- -components$PC2
 
@@ -244,24 +245,39 @@ axis = list(showline=FALSE,
             ticklen=4,
             titlefont=list(size=13))
 
-fig <- plot_ly(components, x = ~PC1, y = ~PC2, color = ~as.character(temp_data$human_interaction_num), colors = c("black", "brown", "gray"), type = "scatter", mode = "markers") |>
+colors <- c("1" = "black", "2" = "gray", "3" = "brown")
+data_approaches <- temp_data |> filter(human_interaction_num == 1)
+data_indifferent <- temp_data |> filter(human_interaction_num == 2)
+data_runs_from <- temp_data |> filter(human_interaction_num == 3)
+
+fig <- plot_ly(components, x = ~PC1, y = ~PC2, color = ~as.character(temp_data$human_interaction_num), colors = colors, type = "scatter", mode = "markers", text = ~as.character(temp_data$human_interaction_num)) |>
   layout(
    title="Principal Component 1 vs. Principal Component 2",
     plot_bgcolor = "#e5ecf6",
     xaxis = list(
       title = "Principal Component 1",
-      zerolinecolor = "#ffff",
+      zerolinecolor = "#ffffe",
       zerolinewidth = 2,
       gridcolor = "#ffff"),
     yaxis = list(
       title = "Principal Component 2",
-      zerolinecolor = "#ffff",
+      zerolinecolor = "#ffffe",
       zerolinewidth = 2,
       gridcolor = "#ffff"),
     legend = list(title=list(text="Human Interaction")))
-fig <= fig |> add_trace(data = temp_data |> filter(human_interaction_num == 1), name = "Approaches")
-fig <= fig |> add_trace(data = temp_data |>filter(human_interaction_num == 2), name = "Indifferent")
-fig <= fig |> add_trace(data = temp_data |>filter(human_interaction_num == 3), name = "Runs from")
+
+fig <- fig |>
+  style(name = "Approaches", traces = 1) |>
+  style(name = "Indifferent", traces = 2) |>
+  style(name = "Runs from",  traces = 3)
+
+
+# data_approaches <- temp_data |> filter(human_interaction_num == 1)
+# data_indifferent <- temp_data |> filter(human_interaction_num == 2)
+# data_runs_from <- temp_data |> filter(human_interaction_num == 3)
+# fig <= fig |> add_trace(data_approaches, name = "Approaches")
+# fig <= fig |> add_trace(data_indifferent, name = "Indifferent")
+# fig <= fig |> add_trace(data_runs_from, name = "Runs from")
 fig
 ```
 
@@ -294,7 +310,7 @@ axis = list(showline=FALSE,
 
 features <- c("latitude", "longitude", "primary_fur_color_num", "shift_num", "location_num")
 
-fig <- plot_ly(components, x = ~PC1, y = ~PC2, color = ~as.character(temp_data$human_interaction_num), colors = c("black", "brown", "gray"), type = "scatter", mode = "markers") |>
+fig <- plot_ly(components, x = ~PC1, y = ~PC2, color = ~as.character(temp_data$human_interaction), colors = c("black", "brown", "gray"), type = "scatter", mode = "markers") |>
   layout(
     title=list(title=list(text = "Principal Component 1 vs. Principal Component 2")),
     plot_bgcolor = "#e5ecf6",
@@ -319,15 +335,27 @@ for (i in seq(4)){
 fig
 ```
 
-Figure 6 is a biplot of the PCA. `latitude` and `longitude` appear to be closely correlated, which is consistent with the previous findings. The near 90 degree angle by `shift_num`, `location_num`, and `latitude` and `longitude` vectors show that these variables are not closely correlated.
+Figure 6 is a biplot of the PCA grouped by Human Interaction. `latitude` and `longitude` appear to be closely correlated, which is consistent with the previous findings. The near 90 degree angle by `shift_num`, `location_num`, and `latitude` and `longitude` vectors show that these variables are not closely correlated.
 
 ```{r}
 #| echo: false
 #| message: false
-ggbiplot(pca, obs.scale = 1, var.scale = 1, ellipse = TRUE, circle = TRUE, repel = TRUE, color = human_interaction_num) + scale_x_discrete(labels=c("shift_num"="Shift", "primary_fur_color_num"="Primary Fur Color")) + ggtitle("Principal Component 1 vs Principal Component 2") + labs(color = "Shift") + theme_minimal()
+
+loadings <- as.data.frame(pca$rotation)
+loadings$variable <- rownames(loadings)  # Keep original variable names
+
+# Define new labels for the vectors
+new_labels <- c("shift_num"="Shift", "primary_fur_color_num"="Primary Fur Color", "latitude"="Latitude", "longitude"="Longitude", "location_num"="Location", "human_interaction_num"="Human Interaction")
+names(new_labels) <- rownames(loadings)
+
+# Define new labels for the vectors
+
+
+biplot <- ggbiplot(pca, groups = temp_data$human_interaction, obs.scale = 1, var.scale = 1, ellipse = TRUE, circle = TRUE, repel = TRUE)  + scale_color_manual(values = c("red", "lightgreen", "blue")) + ggtitle("Principal Component 1 vs Principal Component 2") + labs(x = "Principal Component 1 (33.0%)", y = "Principal Componenent 2 (18.4%)", color = "Human Interaction") + guides(fill = FALSE) 
+biplot
 ```
 
-Figure 7 shows the result of comparing each principal component against each other. The points are colored based on Human Interaction, with 1 = Approaches, 2 = Indifferent, and 3 = Runs from. Upon first glance, principal component 3 and principal component 2 are clustered into very distinct, separate groups, potentially revealing a relationship between primary fur color (principal component 3) and longitude (principal component 2).
+Figure 7 shows the result of comparing each principal component against each other. The points are colored based on Human Interaction. Upon first glance, principal component 3 and principal component 2 are clustered into very distinct, separate groups, potentially revealing a relationship between primary fur color (principal component 3) and longitude (principal component 2).
 
 ```{r}
 #| echo: false
@@ -378,10 +406,16 @@ fig <- components |>
     yaxis4=axis
   )
 
+fig <- fig |>
+  style(name = "Approaches", traces = 1) |>
+  style(name = "Indifferent", traces = 2) |>
+  style(name = "Runs from",  traces = 3)
+
+
 fig
 ```
 
-Figure 8 visualizes the top 3 principal components in 3D space. Again, the points are colored based on Human Interaction, with 1 = Approaches, 2 = Indifferent, and 3 = Runs from. All the points run quite uniform in specific linear clusters when looking at the plot from different angles. \*fix figure numbering
+Figure 8 visualizes the top 3 principal components in 3D space. The points are colored based on Human Interaction. All the points run quite uniform in specific linear clusters when looking at the plot from different angles.
 
 ```{r}
 #| echo: false
@@ -409,6 +443,12 @@ fig <- fig |>
     title = title,
     scene = list(bgcolor = "#e5ecf6")
 )
+
+fig <- fig |>
+  style(name = "Approaches", traces = 1) |>
+  style(name = "Indifferent", traces = 2) |>
+  style(name = "Runs from",  traces = 3)
+
 
 fig
 ```
