@@ -81,17 +81,17 @@ clean_data <- read.csv(filename)
 
 # Abstract
 
-The Eastern Gray squirrels were introduced to New York City in the 1870 (Allen, "Getting to Know"). Though they've lived there for a while, little is known about them, especially on how they interact with humans. With Principal Component Analysis, the Chi-Squared Test of Independence, and the K-Nearest Neighbors algorithms, it will be determined what factors, such as geographical location, location, shift, and primary fur color, impact a Central Park squirrel's interaction with humans. It was found that geographical location, location, shift, and primary fur color were all significantly correlated to human interaction. Combined with other data about the Eastern Gray squirrel from outside New York City, evolutionary patterns can be found to better understand evolution as a whole and the psyche of the Eastern Gray squirrel so they can continue coexisting peacefully with humans in New York City.
+The Eastern gray squirrels were introduced to New York City in the 1870s (Allen, "Getting to Know"). Though they've lived there for a while, little is known about them, especially on how they interact with humans. With Principal Component Analysis, the Chi-Squared Test of Independence, and the K-Nearest Neighbors algorithm, it will be determined what factors, such as geographical location, location, shift, and primary fur color, impact a Central Park squirrel's interaction with humans. It was found that geographical location, location, shift, and primary fur color were all significantly correlated to human interaction. Combined with other data about the Eastern gray squirrel from outside New York City, evolutionary patterns can be found to better understand evolution as a whole and the psyche of the Eastern gray squirrel so they can continue coexisting peacefully with humans in New York City.
 
 # Background
 
-The Eastern Gray Squirrel was first introduced to New York City as part of an attempt to beautify and naturalize what was becoming a very crowded and polluted city. Over a century later, this species has not only seeming integrated seamlessly to city life but as also learned to peacefully coexist with humans. Squirrels are a crucial part of the ecosystem, as prey for predators and burying acorns that become trees (Allen, "Getting to Know"). They remain an integral part of New York City, whose population has grown to over 8 million people (2020 Decennial Census).
+The Eastern Gray Squirrel was first introduced to New York City as part of an attempt to beautify and naturalize what was becoming a very crowded and polluted city. Over a century later, this species has not only integrated seamlessly to city life but as also learned to peacefully coexist with humans. Squirrels are a crucial part of the ecosystem, as they are the food source for many carnivores and bury acorns that later become trees (Allen, "Getting to Know"). They remain an integral part of New York City, whose population has grown to over 8 million people (2020 Decennial Census).
 
 This led me to wonder: What factors, such as geographical coordinates, location, time of day, and primary fur color, impact a squirrel’s behavior toward humans?
 
 Analyzing squirrel's interactions with humans could lead to improved relationships between the two populations so that they can continue coexisting peacefully and maintain an equilibrium.
 
-The dataset used for this analysis is from The Squirrel Census, multimedia science project dedicated to the Eastern Gray Squirrels in New York (Allen, "2018"). The dataset, 2018 Central Park Squirrel Census, contains 3,023 observation and 31 variables detailing age, fur color, activity, and behavior of each of the squirrels.
+The dataset used for this analysis is from The Squirrel Census, a multimedia science project dedicated to the Eastern gray squirrels in New York (Allen, "2018"). The dataset, 2018 Central Park Squirrel Census, contains 3,023 observation and 31 variables detailing the age, fur color, activity, and behavior of each of the squirrels.
 
 ## Approach
 
@@ -99,7 +99,7 @@ I focused on the relationship between geographical location and human interactio
 
 It is important to note that I converted many of these categorical variables into numeric types using various encoding methods, the details of which will be included in each of the descriptions of the variables.
 
-Geographical location: This is where the squirrel is found. For parts of the analysis that require numerical data, I used the `latitude` and `longitude` variables to conduct such analysis. However, some parts of the analysis, such as the Chi-Squared Test of Independence, required categorical data, in which case I used the `hectare` variable (manipulated differently than the original provided variable). This variable divides the area of Central park in a grid-like formation and is labeled 01A to 42I. An example of how it is visualized is provided below. For the sake of consistency, I will refer to all these variables as "geographical location" as part of the larger context, but will explicitly refer to them by their given variable names whilst explaining the analysis.
+Geographical location: This is where the squirrel is found. For parts of the analysis that require numerical data, I used the `latitude` and `longitude` variables to conduct such analysis. However, some parts of the analysis, such as the Chi-Squared Test of Independence, required categorical data, in which case I used the `hectare` variable (manipulated differently than the original provided variable). This variable divides the area of Central park in a grid-like formation and is labeled 01A to 42I. An example of how it is visualized is provided below (Figure 1). For the sake of consistency, I will refer to all these variables as "geographical location" as part of the larger context, but will explicitly refer to them by their given variable names whilst explaining the analysis.
 
 ```{r, fig.width=15, fig.height=11}
 #| echo: false
@@ -108,7 +108,7 @@ my_sf <- clean_data |>
   st_as_sf(coords = c('longitude', 'latitude')) |>
   st_set_crs(4326)
 
-ggplot() + geom_sf(data = my_sf, aes(color = hectare, shape = factor(foraging))) + labs(shape = "foraging") + theme(axis.text.x = element_text(angle = 90))
+ggplot() + geom_sf(data = my_sf, aes(color = hectare)) + labs(title = "Hectare against latitudinal and longitudinal coordinates", color = "Hectare") + theme(axis.text.x = element_text(angle = 90), plot.title = element_text(hjust = -4))
 ```
 
 `location`: This variable describes location of the squirrel relative to the ground. "Ground Plane" means the squirrel was found on the ground and "Above Ground" means the squirrels was found above the ground. This variable was numerically encoded in `location_num` so "Ground Plane" equaled 0 and "Above Ground" equaled 1.
@@ -117,7 +117,7 @@ ggplot() + geom_sf(data = my_sf, aes(color = hectare, shape = factor(foraging)))
 
 `primary_fur_color`: This variable the main color of the squirrel, either "Gray," "Cinnamon," or "Black." The dataset also contains the variable `highlight_fur_color`, so it is important to make this distinction between the two fur colors. This variable was numerically encoded in `primary_fur_color_num` so that "Gray" equaled 1, "Cinnamon" equaled 2, and "Black" equaled 3. A value of 0 indicates an NA value.
 
-Human Interaction: This variable was initially separated so that each observation had a variable for all three types of interaction (`approaches`, `indifferent`, `runs_from`) and TRUE and FALSE to indicate which one the squirrel exhibited. I created a new categorical variable `human_interaction` that had "approaches," "indifferent," and "runs from" as different variable options. Additionally, I also numerically encoded this variable as `human_interaction_num` so that "approaches" equaled 1, "indifferent" equaled 2, and "runs from" equaled 3. A 0 indicates an NA value that no human interaction was was recorded according to the given options.
+Human Interaction: This variable was initially separated so that each observation had a variable for all three types of interaction (`approaches`, `indifferent`, `runs_from`) and TRUE and FALSE to indicate which one the squirrel exhibited. I created a new categorical variable `human_interaction` that had "approaches," "indifferent," and "runs from" as different variable options. Additionally, I also numerically encoded this variable as `human_interaction_num` so that "approaches" equaled 1, "indifferent" equaled 2, and "runs from" equaled 3. A value of 0 indicates an NA value that no human interaction was was recorded according to the given options.
 
 My approach to my research question can be broken into the following parts:
 
@@ -135,7 +135,7 @@ The Chi-Squared Test of Independence is a statistical analysis test used to see 
 
 ### K-Nearest Neighbors Model
 
-K-Nearest Neighbors (KNN) is a supervised machine learning learning model to classify data into certain groups. I used this model to see if it was possible to accurately predict how a squirrel would act based on geographical location, location, shift, and primary fur color.
+K-Nearest Neighbors (KNN) is a supervised machine learning learning model to classify data into certain groups. Splitting the data into training and testing data, I used this algorithm to create a model to see if it was possible to accurately predict how a squirrel would act based on geographical location, location, shift, and primary fur color.
 
 # Results
 
@@ -162,7 +162,7 @@ eigenvalues <- pca$sdev^2
 explained_variance_ratio <- eigenvalues / sum(eigenvalues)
 ```
 
-Figure 1 returns a correlogram visualizing the principle components in the covariance matrix. Looking at the output, `latitude` and `longitude` seem to have a strong positive correlation, while none of the other variables variables are not.
+Figure 2 returns a correlogram visualizing the principle components in the covariance matrix. Looking at the output, `latitude` and `longitude` seem to have a strong positive correlation, while the other variables don't seem to be correlated.
 
 ```{r}
 #| echo: false
@@ -194,7 +194,7 @@ df <- data.frame(number_of_components = components_vector, total_explained_varia
 df
 ```
 
-Figure 2 visualizes the explained variance ratio and the cumulative explained variance values from Table 2.
+Figure 3 visualizes the explained variance ratio and the cumulative explained variance values from Table 2.
 
 ```{r}
 #| echo: false
@@ -211,7 +211,7 @@ variance_plot <- ggplot(variance_df, aes(x = PC)) +
 print(variance_plot)
 ```
 
-Figure 3 shows a Scree plot of all five principal components. It is consistent with the Explained Variance Ratio in showing that 5 components is enough explain majority of the variance within the chosen variables.
+Figure 4 shows a Scree plot of all five principal components. It is consistent with the Explained Variance Ratio in showing that 5 components is enough explain majority of the variance within the chosen variables.
 
 ```{r}
 #| echo: false
@@ -227,7 +227,7 @@ scree_plot <- ggplot(data.frame(PC = 1:length(eigenvalues), Eigenvalue = eigenva
 print(scree_plot)
 ```
 
-Figure 4 shows a 2D representation of principal component 1 and principal component 2. The points are colored based on Human Interaction, with 1 = Approaches, 2 = Indifferent, and 3 = Runs from.
+Figure 5 shows a 2D representation of principal component 1 and principal component 2. The points are colored based on Human Interaction, with 1 = Approaches, 2 = Indifferent, and 3 = Runs from.
 
 ```{r}
 #| echo: false
@@ -259,6 +259,9 @@ fig <- plot_ly(components, x = ~PC1, y = ~PC2, color = ~as.character(temp_data$h
       zerolinewidth = 2,
       gridcolor = "#ffff"),
     legend = list(title=list(text="Human Interaction")))
+fig <= fig |> add_trace(data = temp_data |> filter(human_interaction_num == 1), name = "Approaches")
+fig <= fig |> add_trace(data = temp_data |>filter(human_interaction_num == 2), name = "Indifferent")
+fig <= fig |> add_trace(data = temp_data |>filter(human_interaction_num == 3), name = "Runs from")
 fig
 ```
 
@@ -316,7 +319,7 @@ for (i in seq(4)){
 fig
 ```
 
-Figure 5 is a biplot of the PCA. `latitude` and `longitude` appear to be closely correlated, which is consistent with the previous findings. The near 90 degree angle by `shift_num`, `location_num`, and `latitude` and `longitude` vectors show that these variables are not closely correlated.
+Figure 6 is a biplot of the PCA. `latitude` and `longitude` appear to be closely correlated, which is consistent with the previous findings. The near 90 degree angle by `shift_num`, `location_num`, and `latitude` and `longitude` vectors show that these variables are not closely correlated.
 
 ```{r}
 #| echo: false
@@ -324,7 +327,7 @@ Figure 5 is a biplot of the PCA. `latitude` and `longitude` appear to be closely
 ggbiplot(pca, obs.scale = 1, var.scale = 1, ellipse = TRUE, circle = TRUE, repel = TRUE, color = human_interaction_num) + scale_x_discrete(labels=c("shift_num"="Shift", "primary_fur_color_num"="Primary Fur Color")) + ggtitle("Principal Component 1 vs Principal Component 2") + labs(color = "Shift") + theme_minimal()
 ```
 
-Figure 6 shows the result of comparing each principal component against each other. The points are colored based on Human Interaction, with 1 = Approaches, 2 = Indifferent, and 3 = Runs from. Upon first glance, principal component 3 and principal component 2 are clustered into very distinct, separate groups, potentially revealing a relationship between primary fur color (principal component 3) and longitude (principal component 2).
+Figure 7 shows the result of comparing each principal component against each other. The points are colored based on Human Interaction, with 1 = Approaches, 2 = Indifferent, and 3 = Runs from. Upon first glance, principal component 3 and principal component 2 are clustered into very distinct, separate groups, potentially revealing a relationship between primary fur color (principal component 3) and longitude (principal component 2).
 
 ```{r}
 #| echo: false
@@ -378,7 +381,7 @@ fig <- components |>
 fig
 ```
 
-Figure 7 visualizes the top 3 principal components in 3D space. Again, the points are colored based on Human Interaction, with 1 = Approaches, 2 = Indifferent, and 3 = Runs from. All the points run quite uniform in specific linear clusters when looking at the plot from different angles. \*fix figure numbering
+Figure 8 visualizes the top 3 principal components in 3D space. Again, the points are colored based on Human Interaction, with 1 = Approaches, 2 = Indifferent, and 3 = Runs from. All the points run quite uniform in specific linear clusters when looking at the plot from different angles. \*fix figure numbering
 
 ```{r}
 #| echo: false
@@ -439,7 +442,7 @@ residuals <- chisq_results$residuals
 
 which is less than the set significance level of 0.05, meaning that there is a significant correlation between Hectare and Human Interaction.
 
-Figure 6 below displays a correlogram showing that squirrels with a primary fur color of cinnamon are more likely to approach human, and that gray squirrels tend to have slight inclination to not approach humans. It also displays the trend that squirrels in the 30A-39H hectare are more likely to run away from humans and that squirrels in the 01A-09I hectare are more likely to approach humans.
+Figure 9 below displays a correlogram showing that squirrels with a primary fur color of cinnamon are more likely to approach human, and that gray squirrels tend to have slight inclination to not approach humans. It also displays the trend that squirrels in the 30A-39H hectare are more likely to run away from humans and that squirrels in the 01A-09I hectare are more likely to approach humans.
 
 ```{r}
 #| echo: false
@@ -472,7 +475,7 @@ residuals <- chisq_results$residuals
 
 which is less than 0.05, thereby indicating a significant correlation between shift and human interaction.
 
-Figure 7 below displays the correlation between shift and human interaction, showing that squirrels are more likely to run from humans in the second half of the day (PM) and less likely to in the first half of the day (AM). Interestingly, most squirrels were found to be indifferent in the first half of the day (AM).
+Figure 10 below displays the correlation between shift and human interaction, showing that squirrels are more likely to run from humans in the second half of the day (PM) and less likely to in the first half of the day (AM). Interestingly, most squirrels were found to be indifferent in the first half of the day (AM).
 
 ```{r}
 #| echo: false
@@ -505,7 +508,7 @@ residuals <- chisq_results$residuals
 
 which is less than 0.05, thereby indicating a significant correlation between location and human interaction.
 
-Figure 8 shows the correlation between location and human interaction. Squirrels tend to be less likely to approach humans when they are above the ground, understandable since they are not on the same plane as humans, the ground plane.
+Figure 11 shows the correlation between location and human interaction. Squirrels tend to be less likely to approach humans when they are above the ground, understandable since they are not on the same plane as humans, the ground plane.
 
 ```{r}
 #| echo: false
@@ -539,7 +542,7 @@ residuals <- chisq_results$residuals
 
 which is less than 0.05, meaning that there is a statistically significant association between primary fur color and human interaction.
 
-Figure 9 shows the correlation between primary fur color and human interaction. Interestingly, cinnamon squirrels are more likely to approach humans, since cinnamon squirrels make up a minority of the dataset.
+Figure 12 shows the correlation between primary fur color and human interaction. Interestingly, cinnamon squirrels are more likely to approach humans, since cinnamon squirrels make up a minority of the dataset.
 
 ```{r}
 #| echo: false
@@ -581,7 +584,7 @@ confusion_matrix <- table(test_data$human_interaction, pred)
 accuracy <- sum(diag(confusion_matrix)) / sum(confusion_matrix)
 ```
 
-Here is the confusion matrix
+Here is the confusion matrix (Table 3)
 
 ```{r}
 #| echo: false
@@ -597,7 +600,7 @@ and the accuracy.
 accuracy
 ```
 
-Figure 10 shows the accuracy of different KNN models run at different values of k to see which one yields the highest accuracy.
+Figure 13 shows the accuracy of different KNN models run at different values of k to see which one yields the highest accuracy.
 
 ```{r}
 #| echo: false
@@ -637,9 +640,9 @@ fig <- plot_ly(
 fig
 ```
 
-Figure 10 shows that the plot has the highest accuracy of 0.6218679 at k = 15.
+Figure 13 shows that the plot has the highest accuracy of 0.6218679 at k = 15.
 
-Running the model again at k = 15, we can see that in the confusion matrix, only number of correct "indifferent" predictions increases, while the number of true accurate "approaches" and "runs from" predictions decreases, which could be a result of over fitting the model and the training and testing data including more observation in the "indifferent" and "runs from" categories.
+Running the model again at k = 15, we can see that in the confusion matrix (Table 4), only number of correct "indifferent" predictions increases, while the number of true accurate "approaches" and "runs from" predictions decreases, which could be a result of over fitting the model and the training and testing data including more observation in the "indifferent" and "runs from" categories.
 
 ```{r}
 #| echo: false
@@ -686,7 +689,7 @@ accuracy
 
 # Discussion
 
-As one of few undomesticated animals in New York City, the Eastern Gray squirrel's adaptation is a fascinating phenomena of evolution (Getting to Know Central Parks Squirrels). However, only so much can be deduced about them just be looking at the Eastern Gray squirrel's solely in Central Park, New York City. While it is now known geographical location, location, shift, and primary fur color all have a significant correlation with human interaction, is true only for the Eastern Gray squirrels in Central Park, or does it hold true for them in New York City parks, for all Eastern Gray squirrels in general? More data on the Eastern Gray squirrels in other locales in New York City, as well as the original species of Eastern Gray squirrels, will be needed to draw more conclusions about the evolutionary pathway of the species, a worthwhile goal to understand the psyche of the Eastern Gray squirrel. Ramifications of this research will include better understanding of the Eastern Gray squirrel, as well as knowledge to increase the safety of interactions between squirrels and humans so they can continue to coexist peacefully.
+As one of few undomesticated animals in New York City, the Eastern gray squirrel's adaptation is a fascinating phenomena of evolution (Getting to Know Central Parks Squirrels). However, only so much can be deduced about them just be looking at the Eastern gray squirrel's solely in Central Park, New York City. While it is now known geographical location, location, shift, and primary fur color all have a significant correlation with human interaction, is true only for the Eastern gray squirrels in Central Park, or does it hold true for them in New York City parks, for all Eastern gray squirrels in general? More data on the Eastern gray squirrels in other locales in New York City, as well as the original species of Eastern gray squirrels, will be needed to draw more conclusions about the evolutionary pathway of the species, a worthwhile goal to understand the psyche of the Eastern gray squirrel. Ramifications of this research will include better understanding of the Eastern gray squirrel, as well as knowledge to increase the safety of interactions between squirrels and humans so they can continue to coexist peacefully.
 
 # Code and Data Availability
 
