@@ -299,6 +299,19 @@ clean_data <- select(clean_data, latitude:location, location_num, everything())
 clean_data
 ```
 
+Creating hectare_tens, hectare_ones, and hectare_letter variables
+
+```{r}
+# duplicating hectare column
+clean_data$hectare2 <- clean_data$hectare
+clean_data <- select(clean_data, latitude:hectare, hectare2, everything())
+
+# separating hectare column into individual characters
+clean_data <- separate(clean_data, hectare2, c("hectare_num", "hectare_letter"), sep = 2)
+clean_data <- separate(clean_data, hectare_num, c("hectare_tens", "hectare_ones"), sep = 1)
+clean_data
+```
+
 Saving clean data to new .csv file
 
 ```{r}
